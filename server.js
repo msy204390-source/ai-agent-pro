@@ -8,7 +8,8 @@ import "dotenv/config";
 import OpenAI from "openai";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, "data");
+const IS_PROD = process.env.NODE_ENV === "production";
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
@@ -20,7 +21,11 @@ const PLANS = {
 
 const defaultDb = { users: [], sessions: [], payments: [], usage: [], settings: {} };
 function loadDb() {
-  try { return JSON.parse(fs.readFileSync(DB_FILE, "utf8")); } catch { return structuredClone(defaultDb); }
+  try {
+    return { ...structuredClone(defaultDb), ...JSON.parse(fs.readFileSync(DB_FILE, "utf8")) };
+  } catch {
+    return structuredClone(defaultDb);
+  }
 }
 let db = loadDb();
 function saveDb() {
@@ -43,9 +48,11 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(Buffer.from(actual, "hex"), Buffer.from(hash, "hex"));
 }
 function cookie(name, value, maxAgeSeconds) {
-  return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}`;
+  return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}${IS_PROD ? "; Secure" : ""}`;
 }
-function clearCookie(name) { return `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`; }
+function clearCookie(name) {
+  return `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${IS_PROD ? "; Secure" : ""}`;
+}
 function createSession(userId) {
   const token = crypto.randomBytes(32).toString("base64url");
   const expiresAt = Date.now() + Number(process.env.SESSION_DAYS || 14) * 86400000;
@@ -74,7 +81,7 @@ function activePlan(user) {
 }
 function usageKey(userId) {
   const d = new Date();
-  return `${userId}:${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;
+  return `${userId}:${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 function usageCount(userId) {
   const key = usageKey(userId);
@@ -92,8 +99,9 @@ function publicUser(user) {
     id: user.id, email: user.email, name: user.name, company: user.company,
     industry: user.industry, tone: user.tone, plan: activePlan(user),
     planExpiresAt: user.planExpiresAt || null,
-    usage: usageCount(user),
+    usage: usageCount(user.id),
     limit: activePlan(user) ? PLANS[activePlan(user)].monthlyMessages : 0,
+    isAdmin: !!user.isAdmin,
     createdAt: user.createdAt
   };
 }
@@ -102,16 +110,49 @@ function admin(req, res, next) {
   next();
 }
 
+// إنشاء حساب الأدمن عند تشغيل السيرفر (من متغيرات البيئة فقط)
+function seedAdmin() {
+  const email = normalizeEmail(process.env.ADMIN_EMAIL);
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return;
+  let user = db.users.find(u => u.email === email);
+  if (!user) {
+    user = {
+      id: "admin", email, passwordHash: hashPassword(password), name: "Admin",
+      company: "AI Agent Pro", industry: "AI", tone: "احترافي",
+      plan: "pro", planExpiresAt: "2099-01-01T00:00:00.000Z", isAdmin: true, createdAt: iso(now())
+    };
+    db.users.push(user);
+  } else {
+    user.isAdmin = true;
+    user.passwordHash = hashPassword(password);
+    user.plan = "pro";
+    user.planExpiresAt = "2099-01-01T00:00:00.000Z";
+  }
+  saveDb();
+}
+seedAdmin();
+
 const app = express();
+app.set("trust proxy", 1);
 app.disable("x-powered-by");
-app.use(cors({ origin: true, credentials: true }));
+if (process.env.APP_URL) {
+  app.use(cors({ origin: process.env.APP_URL, credentials: true }));
+}
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false, limit: "100kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 const client = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
-app.get("/api/health", (_req, res) => res.json({ ok: true, aiConfigured: !!client, imageAccess: false }));
+app.get("/api/health", (_req, res) =>
+  res.json({
+    ok: true,
+    aiConfigured: !!client,
+    frontend: fs.existsSync(path.join(__dirname, "public", "index.html")),
+    imageAccess: false
+  })
+);
 
 app.post("/api/signup", (req, res) => {
   const email = normalizeEmail(req.body?.email), password = String(req.body?.password || ""), name = String(req.body?.name || "").trim();
@@ -127,11 +168,7 @@ app.post("/api/signup", (req, res) => {
 
 app.post("/api/login", (req, res) => {
   const email = normalizeEmail(req.body?.email), password = String(req.body?.password || "");
-  let user = db.users.find(u => u.email === email);
-  if (!user && email === normalizeEmail(process.env.ADMIN_EMAIL) && process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD) {
-    user = { id: "admin", email, passwordHash: hashPassword(password), name: "Admin", company: "AI Agent Pro", industry: "AI", tone: "احترافي", plan: "pro", planExpiresAt: "2099-01-01T00:00:00.000Z", isAdmin: true, createdAt: iso(now()) };
-    db.users.push(user); saveDb();
-  }
+  const user = db.users.find(u => u.email === email);
   if (!user || !verifyPassword(password, user.passwordHash)) return res.status(401).json({ error: "البريد أو كلمة المرور غير صحيحة" });
   const s = createSession(user.id);
   res.setHeader("Set-Cookie", cookie("session", s.token, Number(process.env.SESSION_DAYS || 14) * 86400));
@@ -170,7 +207,12 @@ app.post("/api/chat", requireAuth, async (req, res) => {
     if (!message || message.length > 3000) return res.status(400).json({ error: "رسالة غير صالحة" });
     const limit = PLANS[plan].monthlyMessages;
     if (usageCount(req.user.id) >= limit) return res.status(429).json({ error: `وصلت إلى حد ${limit} رسالة لهذا الشهر في خطتك.` });
-    const response = await client.responses.create({ model: process.env.OPENAI_MODEL || "gpt-5-mini", instructions: buildInstructions(req.user), input: message, max_output_tokens: 500 });
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL || "gpt-5-mini",
+      instructions: buildInstructions(req.user),
+      input: message,
+      max_output_tokens: 1500
+    });
     addUsage(req.user.id);
     res.json({ reply: response.output_text || "لم أستطع توليد رد الآن.", usage: usageCount(req.user.id), limit });
   } catch (e) {
@@ -178,15 +220,16 @@ app.post("/api/chat", requireAuth, async (req, res) => {
   }
 });
 
-async function createKazaLink({ amount, currency, email, ref, redirectUrl }) {
+async function createKazaLink({ amount, currency, ref, redirectUrl }) {
   if (!process.env.KAZA_API_KEY || !process.env.KAZA_MERCHANT_EMAIL) return null;
   const r = await fetch(`${process.env.KAZA_API_BASE || "https://outdoor.kasroad.com/wallet"}/createPaymentLink`, {
     method: "POST", headers: { "x-api-key": process.env.KAZA_API_KEY, "Content-Type": "application/json" },
     body: JSON.stringify({ amount: String(amount), currency, email: process.env.KAZA_MERCHANT_EMAIL, ref, redirectUrl })
   });
   const data = await r.json();
-  if (!r.ok || !data?.success && !data?.paymentLink && !data?.link && !data?.url) throw new Error(data?.error || "Kazawallet API error");
-  return data.paymentLink || data.link || data.url || data.data?.paymentLink || data.data?.link;
+  const link = data.paymentLink || data.link || data.url || data.data?.paymentLink || data.data?.link;
+  if (!r.ok || !link) throw new Error(data?.error || "Kazawallet API error");
+  return link;
 }
 
 app.post("/api/checkout", requireAuth, async (req, res) => {
@@ -196,7 +239,9 @@ app.post("/api/checkout", requireAuth, async (req, res) => {
   const ref = `${req.user.id}:${planId}:${Date.now()}`;
   const base = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
   let url = null;
-  try { url = await createKazaLink({ amount: plan.price, currency: "USD", email: process.env.KAZA_MERCHANT_EMAIL, ref, redirectUrl: `${base}/?payment=success&ref=${encodeURIComponent(ref)}` }); } catch (e) { console.error(e); }
+  try {
+    url = await createKazaLink({ amount: plan.price, currency: "USD", ref, redirectUrl: `${base}/?payment=success&ref=${encodeURIComponent(ref)}` });
+  } catch (e) { console.error(e); }
   if (!url && planId === "starter") url = process.env.STARTER_PAYMENT_LINK || null;
   const payment = { id: id("pay"), userId: req.user.id, plan: planId, amount: plan.price, currency: "USD", ref, status: "pending", url, createdAt: iso(now()) };
   db.payments.push(payment); saveDb();
@@ -211,7 +256,9 @@ function verifyKazaWebhook(payload) {
   const secretString = `${amount}:::${orderId}:::${process.env.KAZA_API_KEY}`;
   const sha = crypto.createHash("sha256").update(secretString).digest();
   const digest = crypto.createHmac("sha512", process.env.KAZA_API_SECRET).update(sha).digest("base64");
-  return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(String(payload.secret || "")));
+  const a = Buffer.from(digest);
+  const b = Buffer.from(String(payload.secret || ""));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 app.post("/api/kazawallet/webhook", (req, res) => {
@@ -240,7 +287,21 @@ app.post("/api/admin/activate", requireAuth, admin, (req, res) => {
 
 app.get("/api/config", (_req, res) => res.json({ plans: PLANS, imageAccess: false, starterManual: !!process.env.STARTER_PAYMENT_LINK, automaticPayments: !!process.env.KAZA_API_KEY }));
 
-app.use((_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+// مسارات API غير موجودة ترجع JSON وليس صفحة HTML
+app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
+
+// الصفحة الرئيسية وباقي المسارات
+app.use((_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"), err => {
+    if (err && !res.headersSent) res.status(500).send("Frontend missing: public/index.html");
+  });
+});
+
+// معالج أخطاء عام
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  if (!res.headersSent) res.status(500).json({ error: "خطأ داخلي في الخادم" });
+});
 
 const port = Number(process.env.PORT || 3000);
-app.listen(port, () => console.log(`AI Agent Pro running on http://localhost:${port}`));
+app.listen(port, "0.0.0.0", () => console.log(`AI Agent Pro running on port ${port}`));
