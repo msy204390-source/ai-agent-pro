@@ -11,6 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const IS_PROD = process.env.NODE_ENV === "production";
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
+
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const PLANS = {
@@ -19,7 +20,14 @@ const PLANS = {
   pro: { name: "Pro", price: 149, days: 30, monthlyMessages: 4000 }
 };
 
-const defaultDb = { users: [], sessions: [], payments: [], usage: [], settings: {} };
+const defaultDb = {
+  users: [],
+  sessions: [],
+  payments: [],
+  usage: [],
+  knowledge: [],
+  settings: {}
+};
 
 function loadDb() {
   try {
@@ -66,6 +74,7 @@ function hashPassword(
 
 function verifyPassword(password, stored) {
   const [salt, hash] = String(stored || "").split(":");
+
   if (!salt || !hash) return false;
 
   const actual = crypto.scryptSync(password, salt, 64).toString("hex");
@@ -88,7 +97,8 @@ function createSession(userId) {
   const token = crypto.randomBytes(32).toString("base64url");
 
   const expiresAt =
-    Date.now() + Number(process.env.SESSION_DAYS || 14) * 86400000;
+    Date.now() +
+    Number(process.env.SESSION_DAYS || 14) * 86400000;
 
   db.sessions = db.sessions.filter(
     s => new Date(s.expiresAt).getTime() > Date.now()
@@ -102,7 +112,10 @@ function createSession(userId) {
 
   saveDb();
 
-  return { token, expiresAt };
+  return {
+    token,
+    expiresAt
+  };
 }
 
 function getUser(req) {
@@ -123,7 +136,9 @@ function getUser(req) {
 
   if (!session) return null;
 
-  return db.users.find(u => u.id === session.userId) || null;
+  return db.users.find(
+    u => u.id === session.userId
+  ) || null;
 }
 
 function requireAuth(req, res, next) {
@@ -142,11 +157,15 @@ function requireAuth(req, res, next) {
 function activePlan(user) {
   if (!user?.plan || !user.planExpiresAt) return null;
 
-  if (new Date(user.planExpiresAt).getTime() <= Date.now()) {
+  if (
+    new Date(user.planExpiresAt).getTime() <= Date.now()
+  ) {
     return null;
   }
 
-  return PLANS[user.plan] ? user.plan : null;
+  return PLANS[user.plan]
+    ? user.plan
+    : null;
 }
 
 function usageKey(userId) {
@@ -160,13 +179,17 @@ function usageKey(userId) {
 function usageCount(userId) {
   const key = usageKey(userId);
 
-  return db.usage.find(x => x.key === key)?.messages || 0;
+  return (
+    db.usage.find(x => x.key === key)?.messages || 0
+  );
 }
 
 function addUsage(userId) {
   const key = usageKey(userId);
 
-  let row = db.usage.find(x => x.key === key);
+  let row = db.usage.find(
+    x => x.key === key
+  );
 
   if (!row) {
     row = {
@@ -194,9 +217,12 @@ function publicUser(user) {
     industry: user.industry,
     tone: user.tone,
     plan,
-    planExpiresAt: user.planExpiresAt || null,
+    planExpiresAt:
+      user.planExpiresAt || null,
     usage: usageCount(user.id),
-    limit: plan ? PLANS[plan].monthlyMessages : 0,
+    limit: plan
+      ? PLANS[plan].monthlyMessages
+      : 0,
     isAdmin: !!user.isAdmin,
     createdAt: user.createdAt
   };
@@ -212,26 +238,179 @@ function admin(req, res, next) {
   next();
 }
 
-// إنشاء حساب الأدمن عند تشغيل السيرفر
+/* =========================
+   KNOWLEDGE BASE
+========================= */
+
+function getKnowledge(userId) {
+  let row = db.knowledge.find(
+    x => x.userId === userId
+  );
+
+  if (!row) {
+    row = {
+      userId,
+      businessInfo: "",
+      products: "",
+      prices: "",
+      faq: "",
+      shipping: "",
+      returns: "",
+      contact: "",
+      policies: "",
+      updatedAt: iso(now())
+    };
+
+    db.knowledge.push(row);
+    saveDb();
+  }
+
+  return row;
+}
+
+function publicKnowledge(userId) {
+  const k = getKnowledge(userId);
+
+  return {
+    businessInfo: k.businessInfo || "",
+    products: k.products || "",
+    prices: k.prices || "",
+    faq: k.faq || "",
+    shipping: k.shipping || "",
+    returns: k.returns || "",
+    contact: k.contact || "",
+    policies: k.policies || "",
+    updatedAt: k.updatedAt || null
+  };
+}
+
+function knowledgeForAI(userId) {
+  const k = getKnowledge(userId);
+
+  return `
+معلومات الشركة الأساسية:
+${k.businessInfo || "لا توجد معلومات مدخلة."}
+
+المنتجات والخدمات:
+${k.products || "لا توجد معلومات مدخلة."}
+
+الأسعار:
+${k.prices || "لا توجد أسعار مدخلة."}
+
+الأسئلة الشائعة:
+${k.faq || "لا توجد أسئلة شائعة مدخلة."}
+
+الشحن والتوصيل:
+${k.shipping || "لا توجد معلومات عن الشحن."}
+
+الاستبدال والاسترجاع:
+${k.returns || "لا توجد معلومات عن الاستبدال والاسترجاع."}
+
+معلومات التواصل:
+${k.contact || "لا توجد معلومات تواصل مدخلة."}
+
+سياسات الشركة:
+${k.policies || "لا توجد سياسات مدخلة."}
+`;
+}
+
+app.get(
+  "/api/knowledge",
+  requireAuth,
+  (req, res) => {
+    res.json({
+      knowledge: publicKnowledge(req.user.id)
+    });
+  }
+);
+
+app.put(
+  "/api/knowledge",
+  requireAuth,
+  (req, res) => {
+    const k = getKnowledge(req.user.id);
+
+    const clean = (value, max = 8000) =>
+      String(value || "")
+        .trim()
+        .slice(0, max);
+
+    k.businessInfo = clean(
+      req.body?.businessInfo
+    );
+
+    k.products = clean(
+      req.body?.products
+    );
+
+    k.prices = clean(
+      req.body?.prices
+    );
+
+    k.faq = clean(
+      req.body?.faq
+    );
+
+    k.shipping = clean(
+      req.body?.shipping
+    );
+
+    k.returns = clean(
+      req.body?.returns
+    );
+
+    k.contact = clean(
+      req.body?.contact
+    );
+
+    k.policies = clean(
+      req.body?.policies
+    );
+
+    k.updatedAt = iso(now());
+
+    saveDb();
+
+    res.json({
+      ok: true,
+      knowledge: publicKnowledge(req.user.id)
+    });
+  }
+);
+
+/* =========================
+   ADMIN SEED
+========================= */
+
 function seedAdmin() {
-  const email = normalizeEmail(process.env.ADMIN_EMAIL);
-  const password = process.env.ADMIN_PASSWORD;
+  const email =
+    normalizeEmail(
+      process.env.ADMIN_EMAIL
+    );
+
+  const password =
+    process.env.ADMIN_PASSWORD;
 
   if (!email || !password) return;
 
-  let user = db.users.find(u => u.email === email);
+  let user =
+    db.users.find(
+      u => u.email === email
+    );
 
   if (!user) {
     user = {
       id: "admin",
       email,
-      passwordHash: hashPassword(password),
+      passwordHash:
+        hashPassword(password),
       name: "Admin",
       company: "AI Agent Pro",
       industry: "AI",
       tone: "احترافي",
       plan: "pro",
-      planExpiresAt: "2099-01-01T00:00:00.000Z",
+      planExpiresAt:
+        "2099-01-01T00:00:00.000Z",
       isAdmin: true,
       createdAt: iso(now())
     };
@@ -239,9 +418,11 @@ function seedAdmin() {
     db.users.push(user);
   } else {
     user.isAdmin = true;
-    user.passwordHash = hashPassword(password);
+    user.passwordHash =
+      hashPassword(password);
     user.plan = "pro";
-    user.planExpiresAt = "2099-01-01T00:00:00.000Z";
+    user.planExpiresAt =
+      "2099-01-01T00:00:00.000Z";
   }
 
   saveDb();
@@ -263,257 +444,492 @@ if (process.env.APP_URL) {
   );
 }
 
-app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ extended: false, limit: "100kb" }));
-
-// index.html موجود في نفس مجلد server.js
-app.use(express.static(__dirname));
-
-const client = process.env.OPENAI_API_KEY
-  ? new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    })
-  : null;
-
-app.get("/api/health", (_req, res) =>
-  res.json({
-    ok: true,
-    aiConfigured: !!client,
-
-    // تم إصلاح المسار
-    frontend: fs.existsSync(path.join(__dirname, "index.html")),
-
-    imageAccess: false
+app.use(
+  express.json({
+    limit: "150kb"
   })
 );
 
-app.post("/api/signup", (req, res) => {
-  const email = normalizeEmail(req.body?.email);
-  const password = String(req.body?.password || "");
-  const name = String(req.body?.name || "").trim();
+app.use(
+  express.urlencoded({
+    extended: false,
+    limit: "100kb"
+  })
+);
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    return res.status(400).json({
-      error: "أدخل بريد إلكتروني صحيح"
-    });
-  }
+app.use(
+  express.static(__dirname)
+);
 
-  if (password.length < 8) {
-    return res.status(400).json({
-      error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
-    });
-  }
+const client =
+  process.env.OPENAI_API_KEY
+    ? new OpenAI({
+        apiKey:
+          process.env.OPENAI_API_KEY
+      })
+    : null;
 
-  if (db.users.some(u => u.email === email)) {
-    return res.status(409).json({
-      error: "هذا البريد مسجل مسبقاً"
-    });
-  }
+/* =========================
+   HEALTH
+========================= */
 
-  const user = {
-    id: id("usr"),
-    email,
-    passwordHash: hashPassword(password),
-    name: name || "عميل",
-    company: "",
-    industry: "",
-    tone: "ودود واحترافي",
-    plan: null,
-    planExpiresAt: null,
-    isAdmin: false,
-    createdAt: iso(now())
-  };
+app.get(
+  "/api/health",
+  (_req, res) =>
+    res.json({
+      ok: true,
+      aiConfigured: !!client,
+      frontend:
+        fs.existsSync(
+          path.join(
+            __dirname,
+            "index.html"
+          )
+        ),
+      imageAccess: false,
+      knowledgeBase: true
+    })
+);
 
-  db.users.push(user);
-  saveDb();
+/* =========================
+   AUTH
+========================= */
 
-  const s = createSession(user.id);
+app.post(
+  "/api/signup",
+  (req, res) => {
+    const email =
+      normalizeEmail(
+        req.body?.email
+      );
 
-  res.setHeader(
-    "Set-Cookie",
-    cookie(
-      "session",
-      s.token,
-      Number(process.env.SESSION_DAYS || 14) * 86400
-    )
-  );
+    const password =
+      String(
+        req.body?.password || ""
+      );
 
-  res.json({
-    user: publicUser(user)
-  });
-});
+    const name =
+      String(
+        req.body?.name || ""
+      ).trim();
 
-app.post("/api/login", (req, res) => {
-  const email = normalizeEmail(req.body?.email);
-  const password = String(req.body?.password || "");
+    if (
+      !/^\S+@\S+\.\S+$/.test(email)
+    ) {
+      return res.status(400).json({
+        error:
+          "أدخل بريد إلكتروني صحيح"
+      });
+    }
 
-  const user = db.users.find(u => u.email === email);
+    if (password.length < 8) {
+      return res.status(400).json({
+        error:
+          "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
+      });
+    }
 
-  if (!user || !verifyPassword(password, user.passwordHash)) {
-    return res.status(401).json({
-      error: "البريد أو كلمة المرور غير صحيحة"
-    });
-  }
+    if (
+      db.users.some(
+        u => u.email === email
+      )
+    ) {
+      return res.status(409).json({
+        error:
+          "هذا البريد مسجل مسبقاً"
+      });
+    }
 
-  const s = createSession(user.id);
+    const user = {
+      id: id("usr"),
+      email,
+      passwordHash:
+        hashPassword(password),
+      name:
+        name || "عميل",
+      company: "",
+      industry: "",
+      tone:
+        "ودود واحترافي",
+      plan: null,
+      planExpiresAt: null,
+      isAdmin: false,
+      createdAt: iso(now())
+    };
 
-  res.setHeader(
-    "Set-Cookie",
-    cookie(
-      "session",
-      s.token,
-      Number(process.env.SESSION_DAYS || 14) * 86400
-    )
-  );
+    db.users.push(user);
 
-  res.json({
-    user: publicUser(user)
-  });
-});
+    getKnowledge(user.id);
 
-app.post("/api/logout", (req, res) => {
-  const raw = req.headers.cookie
-    ?.split(";")
-    .map(x => x.trim())
-    .find(x => x.startsWith("session="));
+    saveDb();
 
-  if (raw) {
-    db.sessions = db.sessions.filter(
-      s => s.token !== decodeURIComponent(raw.slice(8))
+    const s =
+      createSession(user.id);
+
+    res.setHeader(
+      "Set-Cookie",
+      cookie(
+        "session",
+        s.token,
+        Number(
+          process.env.SESSION_DAYS ||
+          14
+        ) * 86400
+      )
     );
+
+    res.json({
+      user:
+        publicUser(user)
+    });
   }
+);
 
-  saveDb();
+app.post(
+  "/api/login",
+  (req, res) => {
+    const email =
+      normalizeEmail(
+        req.body?.email
+      );
 
-  res.setHeader("Set-Cookie", clearCookie("session"));
+    const password =
+      String(
+        req.body?.password || ""
+      );
 
-  res.json({
-    ok: true
-  });
-});
+    const user =
+      db.users.find(
+        u =>
+          u.email === email
+      );
 
-app.get("/api/me", (req, res) => {
-  const u = getUser(req);
+    if (
+      !user ||
+      !verifyPassword(
+        password,
+        user.passwordHash
+      )
+    ) {
+      return res.status(401).json({
+        error:
+          "البريد أو كلمة المرور غير صحيحة"
+      });
+    }
 
-  res.json({
-    user: u ? publicUser(u) : null
-  });
-});
+    const s =
+      createSession(user.id);
 
-app.put("/api/profile", requireAuth, (req, res) => {
-  const u = req.user;
+    res.setHeader(
+      "Set-Cookie",
+      cookie(
+        "session",
+        s.token,
+        Number(
+          process.env.SESSION_DAYS ||
+          14
+        ) * 86400
+      )
+    );
 
-  u.name = String(req.body?.name || u.name)
-    .trim()
-    .slice(0, 100);
+    res.json({
+      user:
+        publicUser(user)
+    });
+  }
+);
 
-  u.company = String(req.body?.company || "")
-    .trim()
-    .slice(0, 120);
+app.post(
+  "/api/logout",
+  (req, res) => {
+    const raw =
+      req.headers.cookie
+        ?.split(";")
+        .map(x => x.trim())
+        .find(
+          x =>
+            x.startsWith(
+              "session="
+            )
+        );
 
-  u.industry = String(req.body?.industry || "")
-    .trim()
-    .slice(0, 120);
+    if (raw) {
+      db.sessions =
+        db.sessions.filter(
+          s =>
+            s.token !==
+            decodeURIComponent(
+              raw.slice(8)
+            )
+        );
+    }
 
-  u.tone = String(req.body?.tone || "ودود واحترافي")
-    .trim()
-    .slice(0, 80);
+    saveDb();
 
-  saveDb();
+    res.setHeader(
+      "Set-Cookie",
+      clearCookie(
+        "session"
+      )
+    );
 
-  res.json({
-    user: publicUser(u)
-  });
-});
+    res.json({
+      ok: true
+    });
+  }
+);
+
+app.get(
+  "/api/me",
+  (req, res) => {
+    const u =
+      getUser(req);
+
+    res.json({
+      user: u
+        ? publicUser(u)
+        : null
+    });
+  }
+);
+
+/* =========================
+   PROFILE
+========================= */
+
+app.put(
+  "/api/profile",
+  requireAuth,
+  (req, res) => {
+    const u =
+      req.user;
+
+    u.name =
+      String(
+        req.body?.name ||
+        u.name
+      )
+        .trim()
+        .slice(0, 100);
+
+    u.company =
+      String(
+        req.body?.company ||
+        ""
+      )
+        .trim()
+        .slice(0, 120);
+
+    u.industry =
+      String(
+        req.body?.industry ||
+        ""
+      )
+        .trim()
+        .slice(0, 120);
+
+    u.tone =
+      String(
+        req.body?.tone ||
+        "ودود واحترافي"
+      )
+        .trim()
+        .slice(0, 80);
+
+    saveDb();
+
+    res.json({
+      user:
+        publicUser(u)
+    });
+  }
+);
+
+/* =========================
+   AI INSTRUCTIONS
+========================= */
 
 function buildInstructions(user) {
-  const plan = activePlan(user);
+  const plan =
+    activePlan(user);
 
   const profile =
-    `اسم العميل: ${user.name || "غير محدد"}\n` +
-    `الشركة: ${user.company || "غير محددة"}\n` +
-    `المجال: ${user.industry || "غير محدد"}\n` +
-    `نبرة الرد: ${user.tone || "ودود واحترافي"}`;
+    `اسم العميل: ${
+      user.name ||
+      "غير محدد"
+    }
+الشركة: ${
+      user.company ||
+      "غير محددة"
+    }
+المجال: ${
+      user.industry ||
+      "غير محدد"
+    }
+نبرة الرد: ${
+      user.tone ||
+      "ودود واحترافي"
+    }`;
+
+  const knowledge =
+    knowledgeForAI(
+      user.id
+    );
 
   return `
-أنت وكيل ذكاء اصطناعي للمبيعات وخدمة العملاء يعمل داخل خدمة AI Agent Pro.
+أنت وكيل ذكاء اصطناعي احترافي للمبيعات وخدمة العملاء يعمل داخل AI Agent Pro.
 
+معلومات صاحب الحساب:
 ${profile}
 
-خطة المستخدم الحالية:
-${plan ? PLANS[plan].name : "لا يوجد اشتراك"}.
+الخطة الحالية:
+${
+  plan
+    ? PLANS[plan].name
+    : "لا يوجد اشتراك"
+}
 
-كن دقيقاً، مختصراً ومفيداً.
+===== قاعدة معرفة الشركة =====
 
-لا تخترع أسعاراً أو سياسات أو عمليات لم ينفذها النظام.
+${knowledge}
 
-إذا لم تعرف معلومة فقل إنك تحتاج تفاصيل إضافية.
+===== تعليمات مهمة =====
 
-لا تطلب أبداً صور المستخدم ولا تطلب الوصول إلى ألبوم الصور أو الكاميرا أو أي صلاحية على جهازه.
+استخدم قاعدة المعرفة أعلاه باعتبارها المصدر الأساسي لمعلومات الشركة.
 
-لا تطلب كلمات مرور أو رموز OTP أو مفاتيح API.
+إذا كانت المعلومة موجودة في قاعدة المعرفة، استخدمها بدقة.
 
-إذا كان السؤال خارج نطاق نشاط الشركة، أجب بإيجاز ووجّه المستخدم للخدمة المناسبة.
+لا تخترع أسعاراً أو منتجات أو سياسات أو مواعيد أو معلومات تواصل.
+
+إذا لم تجد إجابة في قاعدة المعرفة، قل بوضوح إن المعلومات غير متوفرة حالياً، ويمكنك طلب تفاصيل إضافية من العميل.
+
+لا تقل للعميل إنك "تقرأ قاعدة بيانات" أو "تستخدم prompt".
+
+كن ودوداً واحترافياً ومختصراً.
+
+إذا كان العميل يسأل عن منتج، حاول مساعدته في الاختيار بطريقة مفيدة.
+
+إذا كان السؤال متعلقاً بالشراء، وضّح السعر أو طريقة الطلب فقط إذا كانت موجودة في المعلومات.
+
+إذا كان السؤال متعلقاً بالشحن أو الاستبدال، استخدم سياسة الشركة الموجودة أعلاه فقط.
+
+لا تدّعي تنفيذ عملية دفع أو طلب أو استرجاع إلا إذا كان النظام قد نفذها فعلاً.
+
+لا تطلب كلمات مرور أو OTP أو مفاتيح API.
+
+لا تطلب الوصول إلى الكاميرا أو الصور أو ألبوم الصور.
+
+إذا لم تكن المعلومة معروفة، لا تخمّن.
 `;
 }
 
-app.post("/api/chat", requireAuth, async (req, res) => {
-  try {
-    const plan = activePlan(req.user);
+/* =========================
+   CHAT
+========================= */
 
-    if (!plan) {
-      return res.status(402).json({
-        error: "هذا الحساب يحتاج إلى اشتراك فعال لاستخدام الوكيل."
+app.post(
+  "/api/chat",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const plan =
+        activePlan(
+          req.user
+        );
+
+      if (!plan) {
+        return res.status(402).json({
+          error:
+            "هذا الحساب يحتاج إلى اشتراك فعال لاستخدام الوكيل."
+        });
+      }
+
+      if (!client) {
+        return res.status(503).json({
+          error:
+            "الذكاء الاصطناعي غير مفعّل على الخادم بعد. أضف OPENAI_API_KEY."
+        });
+      }
+
+      const message =
+        String(
+          req.body?.message ||
+          ""
+        ).trim();
+
+      if (
+        !message ||
+        message.length > 3000
+      ) {
+        return res.status(400).json({
+          error:
+            "رسالة غير صالحة"
+        });
+      }
+
+      const limit =
+        PLANS[plan]
+          .monthlyMessages;
+
+      if (
+        usageCount(
+          req.user.id
+        ) >= limit
+      ) {
+        return res.status(429).json({
+          error:
+            `وصلت إلى حد ${limit} رسالة لهذا الشهر في خطتك.`
+        });
+      }
+
+      const response =
+        await client.responses.create(
+          {
+            model:
+              process.env.OPENAI_MODEL ||
+              "gpt-5-mini",
+
+            instructions:
+              buildInstructions(
+                req.user
+              ),
+
+            input: message,
+
+            max_output_tokens: 1500
+          }
+        );
+
+      addUsage(
+        req.user.id
+      );
+
+      res.json({
+        reply:
+          response.output_text ||
+          "لم أستطع توليد رد الآن.",
+
+        usage:
+          usageCount(
+            req.user.id
+          ),
+
+        limit
       });
-    }
+    } catch (e) {
+      console.error(e);
 
-    if (!client) {
-      return res.status(503).json({
+      res.status(500).json({
         error:
-          "الذكاء الاصطناعي غير مفعّل على الخادم بعد. أضف OPENAI_API_KEY."
+          "حدث خطأ في خادم الذكاء الاصطناعي."
       });
     }
-
-    const message = String(req.body?.message || "").trim();
-
-    if (!message || message.length > 3000) {
-      return res.status(400).json({
-        error: "رسالة غير صالحة"
-      });
-    }
-
-    const limit = PLANS[plan].monthlyMessages;
-
-    if (usageCount(req.user.id) >= limit) {
-      return res.status(429).json({
-        error: `وصلت إلى حد ${limit} رسالة لهذا الشهر في خطتك.`
-      });
-    }
-
-    const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL || "gpt-5-mini",
-      instructions: buildInstructions(req.user),
-      input: message,
-      max_output_tokens: 1500
-    });
-
-    addUsage(req.user.id);
-
-    res.json({
-      reply:
-        response.output_text ||
-        "لم أستطع توليد رد الآن.",
-      usage: usageCount(req.user.id),
-      limit
-    });
-  } catch (e) {
-    console.error(e);
-
-    res.status(500).json({
-      error: "حدث خطأ في خادم الذكاء الاصطناعي."
-    });
   }
-});
+);
+
+/* =========================
+   KAZAWALLET
+========================= */
 
 async function createKazaLink({
   amount,
@@ -528,30 +944,37 @@ async function createKazaLink({
     return null;
   }
 
-  const r = await fetch(
-    `${
-      process.env.KAZA_API_BASE ||
-      "https://outdoor.kasroad.com/wallet"
-    }/createPaymentLink`,
-    {
-      method: "POST",
+  const r =
+    await fetch(
+      `${
+        process.env.KAZA_API_BASE ||
+        "https://outdoor.kasroad.com/wallet"
+      }/createPaymentLink`,
+      {
+        method: "POST",
 
-      headers: {
-        "x-api-key": process.env.KAZA_API_KEY,
-        "Content-Type": "application/json"
-      },
+        headers: {
+          "x-api-key":
+            process.env.KAZA_API_KEY,
+          "Content-Type":
+            "application/json"
+        },
 
-      body: JSON.stringify({
-        amount: String(amount),
-        currency,
-        email: process.env.KAZA_MERCHANT_EMAIL,
-        ref,
-        redirectUrl
-      })
-    }
-  );
+        body:
+          JSON.stringify({
+            amount:
+              String(amount),
+            currency,
+            email:
+              process.env.KAZA_MERCHANT_EMAIL,
+            ref,
+            redirectUrl
+          })
+      }
+    );
 
-  const data = await r.json();
+  const data =
+    await r.json();
 
   const link =
     data.paymentLink ||
@@ -560,82 +983,119 @@ async function createKazaLink({
     data.data?.paymentLink ||
     data.data?.link;
 
-  if (!r.ok || !link) {
+  if (
+    !r.ok ||
+    !link
+  ) {
     throw new Error(
-      data?.error || "Kazawallet API error"
+      data?.error ||
+      "Kazawallet API error"
     );
   }
 
   return link;
 }
 
-app.post("/api/checkout", requireAuth, async (req, res) => {
-  const planId = String(req.body?.plan || "starter");
-  const plan = PLANS[planId];
+app.post(
+  "/api/checkout",
+  requireAuth,
+  async (req, res) => {
+    const planId =
+      String(
+        req.body?.plan ||
+        "starter"
+      );
 
-  if (!plan) {
-    return res.status(400).json({
-      error: "الخطة غير موجودة"
-    });
-  }
+    const plan =
+      PLANS[planId];
 
-  const ref =
-    `${req.user.id}:${planId}:${Date.now()}`;
+    if (!plan) {
+      return res.status(400).json({
+        error:
+          "الخطة غير موجودة"
+      });
+    }
 
-  const base =
-    process.env.APP_URL ||
-    `${req.protocol}://${req.get("host")}`;
+    const ref =
+      `${req.user.id}:${planId}:${Date.now()}`;
 
-  let url = null;
+    const base =
+      process.env.APP_URL ||
+      `${req.protocol}://${req.get("host")}`;
 
-  try {
-    url = await createKazaLink({
-      amount: plan.price,
-      currency: "USD",
+    let url = null;
+
+    try {
+      url =
+        await createKazaLink({
+          amount:
+            plan.price,
+          currency:
+            "USD",
+          ref,
+          redirectUrl:
+            `${base}/?payment=success&ref=${encodeURIComponent(ref)}`
+        });
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (
+      !url &&
+      planId === "starter"
+    ) {
+      url =
+        process.env
+          .STARTER_PAYMENT_LINK ||
+        null;
+    }
+
+    const payment = {
+      id: id("pay"),
+      userId:
+        req.user.id,
+      plan:
+        planId,
+      amount:
+        plan.price,
+      currency:
+        "USD",
       ref,
-      redirectUrl:
-        `${base}/?payment=success&ref=${encodeURIComponent(ref)}`
-    });
-  } catch (e) {
-    console.error(e);
-  }
+      status:
+        "pending",
+      url,
+      createdAt:
+        iso(now())
+    };
 
-  if (!url && planId === "starter") {
-    url = process.env.STARTER_PAYMENT_LINK || null;
-  }
+    db.payments.push(
+      payment
+    );
 
-  const payment = {
-    id: id("pay"),
-    userId: req.user.id,
-    plan: planId,
-    amount: plan.price,
-    currency: "USD",
-    ref,
-    status: "pending",
-    url,
-    createdAt: iso(now())
-  };
+    saveDb();
 
-  db.payments.push(payment);
-  saveDb();
+    if (!url) {
+      return res.status(503).json({
+        error:
+          "الدفع الآلي يحتاج تفعيل حساب Kazawallet Merchant وبيانات API على الخادم."
+      });
+    }
 
-  if (!url) {
-    return res.status(503).json({
-      error:
-        "الدفع الآلي يحتاج تفعيل حساب Kazawallet Merchant وبيانات API على الخادم."
+    res.json({
+      url,
+      paymentId:
+        payment.id,
+      mode:
+        process.env.KAZA_API_KEY
+          ? "api"
+          : "manual"
     });
   }
+);
 
-  res.json({
-    url,
-    paymentId: payment.id,
-    mode: process.env.KAZA_API_KEY
-      ? "api"
-      : "manual"
-  });
-});
-
-function verifyKazaWebhook(payload) {
+function verifyKazaWebhook(
+  payload
+) {
   if (
     !process.env.KAZA_API_KEY ||
     !process.env.KAZA_API_SECRET
@@ -643,81 +1103,140 @@ function verifyKazaWebhook(payload) {
     return false;
   }
 
-  const amount = String(payload.amount ?? "");
-  const orderId = String(payload.order_id ?? "");
+  const amount =
+    String(
+      payload.amount ?? ""
+    );
+
+  const orderId =
+    String(
+      payload.order_id ?? ""
+    );
 
   const secretString =
     `${amount}:::${orderId}:::${process.env.KAZA_API_KEY}`;
 
-  const sha = crypto
-    .createHash("sha256")
-    .update(secretString)
-    .digest();
+  const sha =
+    crypto
+      .createHash("sha256")
+      .update(secretString)
+      .digest();
 
-  const digest = crypto
-    .createHmac("sha512", process.env.KAZA_API_SECRET)
-    .update(sha)
-    .digest("base64");
+  const digest =
+    crypto
+      .createHmac(
+        "sha512",
+        process.env.KAZA_API_SECRET
+      )
+      .update(sha)
+      .digest("base64");
 
-  const a = Buffer.from(digest);
-  const b = Buffer.from(
-    String(payload.secret || "")
-  );
+  const a =
+    Buffer.from(digest);
+
+  const b =
+    Buffer.from(
+      String(
+        payload.secret || ""
+      )
+    );
 
   return (
     a.length === b.length &&
-    crypto.timingSafeEqual(a, b)
+    crypto.timingSafeEqual(
+      a,
+      b
+    )
   );
 }
 
-app.post("/api/kazawallet/webhook", (req, res) => {
-  const p = req.body || {};
+app.post(
+  "/api/kazawallet/webhook",
+  (req, res) => {
+    const p =
+      req.body || {};
 
-  if (!verifyKazaWebhook(p)) {
-    return res.status(401).json({
-      error: "Invalid webhook signature"
-    });
-  }
-
-  const payment = db.payments.find(
-    x => x.ref === String(p.ref || "")
-  );
-
-  if (!payment) {
-    return res.status(404).json({
-      error: "Payment reference not found"
-    });
-  }
-
-  if (p.status === "fulfilled") {
-    payment.status = "paid";
-    payment.orderId = String(p.order_id || "");
-    payment.paidAt = iso(now());
-
-    const user = db.users.find(
-      u => u.id === payment.userId
-    );
-
-    if (user) {
-      user.plan = payment.plan;
-
-      user.planExpiresAt = iso(
-        new Date(
-          Date.now() +
-          PLANS[payment.plan].days * 86400000
-        )
-      );
+    if (
+      !verifyKazaWebhook(p)
+    ) {
+      return res.status(401).json({
+        error:
+          "Invalid webhook signature"
+      });
     }
-  } else if (p.status === "timed_out") {
-    payment.status = "timed_out";
+
+    const payment =
+      db.payments.find(
+        x =>
+          x.ref ===
+          String(
+            p.ref || ""
+          )
+      );
+
+    if (!payment) {
+      return res.status(404).json({
+        error:
+          "Payment reference not found"
+      });
+    }
+
+    if (
+      p.status ===
+      "fulfilled"
+    ) {
+      payment.status =
+        "paid";
+
+      payment.orderId =
+        String(
+          p.order_id || ""
+        );
+
+      payment.paidAt =
+        iso(now());
+
+      const user =
+        db.users.find(
+          u =>
+            u.id ===
+            payment.userId
+        );
+
+      if (user) {
+        user.plan =
+          payment.plan;
+
+        user.planExpiresAt =
+          iso(
+            new Date(
+              Date.now() +
+              PLANS[
+                payment.plan
+              ].days *
+              86400000
+            )
+          );
+      }
+    } else if (
+      p.status ===
+      "timed_out"
+    ) {
+      payment.status =
+        "timed_out";
+    }
+
+    saveDb();
+
+    res.json({
+      ok: true
+    });
   }
+);
 
-  saveDb();
-
-  res.json({
-    ok: true
-  });
-});
+/* =========================
+   ADMIN
+========================= */
 
 app.get(
   "/api/payments",
@@ -725,10 +1244,13 @@ app.get(
   admin,
   (_req, res) =>
     res.json({
-      payments: db.payments
-        .slice()
-        .reverse()
-        .map(p => ({ ...p }))
+      payments:
+        db.payments
+          .slice()
+          .reverse()
+          .map(p => ({
+            ...p
+          }))
     })
 );
 
@@ -738,7 +1260,10 @@ app.get(
   admin,
   (_req, res) =>
     res.json({
-      users: db.users.map(publicUser)
+      users:
+        db.users.map(
+          publicUser
+        )
     })
 );
 
@@ -747,83 +1272,140 @@ app.post(
   requireAuth,
   admin,
   (req, res) => {
-    const user = db.users.find(
-      u => u.id === String(req.body?.userId)
-    );
+    const user =
+      db.users.find(
+        u =>
+          u.id ===
+          String(
+            req.body?.userId
+          )
+      );
 
     const plan =
-      PLANS[String(req.body?.plan)];
+      PLANS[
+        String(
+          req.body?.plan
+        )
+      ];
 
-    if (!user || !plan) {
+    if (
+      !user ||
+      !plan
+    ) {
       return res.status(400).json({
-        error: "بيانات غير صالحة"
+        error:
+          "بيانات غير صالحة"
       });
     }
 
-    user.plan = String(req.body.plan);
+    user.plan =
+      String(
+        req.body.plan
+      );
 
-    user.planExpiresAt = iso(
-      new Date(
-        Date.now() +
-        plan.days * 86400000
-      )
-    );
+    user.planExpiresAt =
+      iso(
+        new Date(
+          Date.now() +
+          plan.days *
+          86400000
+        )
+      );
 
     saveDb();
 
     res.json({
-      user: publicUser(user)
+      user:
+        publicUser(user)
     });
   }
 );
 
-app.get("/api/config", (_req, res) =>
-  res.json({
-    plans: PLANS,
-    imageAccess: false,
-    starterManual:
-      !!process.env.STARTER_PAYMENT_LINK,
-    automaticPayments:
-      !!process.env.KAZA_API_KEY
-  })
+app.get(
+  "/api/config",
+  (_req, res) =>
+    res.json({
+      plans: PLANS,
+      imageAccess: false,
+      knowledgeBase: true,
+      starterManual:
+        !!process.env
+          .STARTER_PAYMENT_LINK,
+      automaticPayments:
+        !!process.env
+          .KAZA_API_KEY
+    })
 );
 
-// مسارات API غير موجودة
-app.use("/api", (_req, res) =>
-  res.status(404).json({
-    error: "Not found"
-  })
+/* =========================
+   404 API
+========================= */
+
+app.use(
+  "/api",
+  (_req, res) =>
+    res.status(404).json({
+      error:
+        "Not found"
+    })
 );
 
-// الصفحة الرئيسية وباقي المسارات
-// تم إصلاح المسار: index.html موجود بجانب server.js
-app.use((_req, res) => {
-  res.sendFile(
-    path.join(__dirname, "index.html"),
-    err => {
-      if (err && !res.headersSent) {
-        res
-          .status(500)
-          .send("Frontend missing: index.html");
+/* =========================
+   FRONTEND
+========================= */
+
+app.use(
+  (_req, res) => {
+    res.sendFile(
+      path.join(
+        __dirname,
+        "index.html"
+      ),
+      err => {
+        if (
+          err &&
+          !res.headersSent
+        ) {
+          res
+            .status(500)
+            .send(
+              "Frontend missing: index.html"
+            );
+        }
       }
-    }
-  );
-});
-
-// معالج أخطاء عام
-app.use((err, _req, res, _next) => {
-  console.error(err);
-
-  if (!res.headersSent) {
-    res.status(500).json({
-      error: "خطأ داخلي في الخادم"
-    });
+    );
   }
-});
-
-const port = Number(
-  process.env.PORT || 3000
 );
+
+/* =========================
+   ERROR HANDLER
+========================= */
+
+app.use(
+  (
+    err,
+    _req,
+    res,
+    _next
+  ) => {
+    console.error(err);
+
+    if (
+      !res.headersSent
+    ) {
+      res.status(500).json({
+        error:
+          "خطأ داخلي في الخادم"
+      });
+    }
+  }
+);
+
+const port =
+  Number(
+    process.env.PORT ||
+    3000
+  );
 
 app.listen(
   port,
