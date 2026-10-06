@@ -493,57 +493,275 @@ function publicUser(user) {
   };
 }
 
-/* =========================
-   CONVERSATION MEMORY
-========================= */
+/* =========================================================
+   MULTI CONVERSATIONS
+   يدعم عدة محادثات لكل مستخدم
+========================================================= */
 
-function getConversation(userId) {
-  let row =
-    db.conversations.find(
-      x =>
-        x.userId === userId
-    );
+function makeConversation(
+  userId,
+  title = "محادثة جديدة"
+) {
+  return {
+    id: id("conv"),
+    userId,
+    title:
+      cleanText(
+        title,
+        80
+      ) ||
+      "محادثة جديدة",
 
-  if (!row) {
-    row = {
-      userId,
-      messages: [],
-      updatedAt:
-        iso(now())
-    };
+    messages: [],
 
-    db.conversations.push(row);
+    createdAt:
+      iso(now()),
+
+    updatedAt:
+      iso(now())
+  };
+}
+
+/*
+  ترحيل المحادثات القديمة من النظام السابق.
+
+  النسخة القديمة كانت تحفظ:
+  {
+    userId,
+    messages,
+    updatedAt
+  }
+
+  النسخة الجديدة تضيف:
+  id
+  title
+  createdAt
+*/
+
+function migrateConversations() {
+  let changed = false;
+
+  for (const conversation of db.conversations) {
+    if (!conversation.id) {
+      conversation.id =
+        id("conv");
+
+      changed = true;
+    }
+
+    if (!conversation.userId) {
+      continue;
+    }
+
+    if (
+      !Array.isArray(
+        conversation.messages
+      )
+    ) {
+      conversation.messages = [];
+      changed = true;
+    }
+
+    if (!conversation.title) {
+      const firstUserMessage =
+        conversation.messages.find(
+          m =>
+            m &&
+            m.role === "user" &&
+            m.content
+        );
+
+      conversation.title =
+        firstUserMessage
+          ? cleanText(
+              firstUserMessage.content,
+              60
+            )
+          : "محادثة سابقة";
+
+      changed = true;
+    }
+
+    if (!conversation.createdAt) {
+      conversation.createdAt =
+        conversation.updatedAt ||
+        iso(now());
+
+      changed = true;
+    }
+
+    if (!conversation.updatedAt) {
+      conversation.updatedAt =
+        conversation.createdAt ||
+        iso(now());
+
+      changed = true;
+    }
+  }
+
+  if (changed) {
     saveDb();
   }
+}
 
-  if (!Array.isArray(row.messages)) {
-    row.messages = [];
+migrateConversations();
+
+/* =========================
+   CONVERSATION HELPERS
+========================= */
+
+function getUserConversations(
+  userId
+) {
+  return db.conversations
+    .filter(
+      conversation =>
+        conversation.userId ===
+        userId
+    )
+    .sort(
+      (a, b) =>
+        new Date(
+          b.updatedAt
+        ).getTime() -
+        new Date(
+          a.updatedAt
+        ).getTime()
+    );
+}
+
+function createConversation(
+  userId,
+  title = "محادثة جديدة"
+) {
+  const conversation =
+    makeConversation(
+      userId,
+      title
+    );
+
+  db.conversations.push(
+    conversation
+  );
+
+  saveDb();
+
+  return conversation;
+}
+
+function getConversation(
+  userId,
+  conversationId = null
+) {
+  let conversation = null;
+
+  if (conversationId) {
+    conversation =
+      db.conversations.find(
+        x =>
+          x.id ===
+            conversationId &&
+          x.userId === userId
+      ) || null;
   }
 
-  return row;
+  if (!conversation) {
+    conversation =
+      getUserConversations(
+        userId
+      )[0] || null;
+  }
+
+  if (!conversation) {
+    conversation =
+      createConversation(
+        userId
+      );
+  }
+
+  if (
+    !Array.isArray(
+      conversation.messages
+    )
+  ) {
+    conversation.messages = [];
+  }
+
+  return conversation;
+}
+
+function getConversationById(
+  userId,
+  conversationId
+) {
+  return (
+    db.conversations.find(
+      conversation =>
+        conversation.id ===
+          conversationId &&
+        conversation.userId ===
+          userId
+    ) || null
+  );
+}
+
+function conversationSummary(
+  conversation
+) {
+  return {
+    id:
+      conversation.id,
+
+    title:
+      conversation.title ||
+      "محادثة جديدة",
+
+    messageCount:
+      Array.isArray(
+        conversation.messages
+      )
+        ? conversation.messages.length
+        : 0,
+
+    createdAt:
+      conversation.createdAt,
+
+    updatedAt:
+      conversation.updatedAt
+  };
 }
 
 function addConversationMessage(
-  userId,
+  conversation,
   role,
   content
 ) {
-  const conversation =
-    getConversation(userId);
+  if (
+    !Array.isArray(
+      conversation.messages
+    )
+  ) {
+    conversation.messages = [];
+  }
 
   conversation.messages.push({
     id: id("msg"),
+
     role,
+
     content:
-      cleanText(content, 5000),
+      cleanText(
+        content,
+        5000
+      ),
+
     createdAt:
       iso(now())
   });
 
   /*
-    نحافظ على آخر 40 رسالة فقط
-    حتى لا تكبر قاعدة البيانات
-    بشكل غير ضروري.
+    نحتفظ بآخر 40 رسالة
+    لكل محادثة.
   */
 
   if (
@@ -558,24 +776,351 @@ function addConversationMessage(
 
   conversation.updatedAt =
     iso(now());
-
-  saveDb();
 }
 
 function conversationForAI(
-  userId
+  conversation
 ) {
-  const conversation =
-    getConversation(userId);
+  if (
+    !conversation ||
+    !Array.isArray(
+      conversation.messages
+    )
+  ) {
+    return "";
+  }
 
   return conversation.messages
     .slice(-20)
     .map(
       message =>
-        `${message.role === "user" ? "العميل" : "الوكيل"}: ${message.content}`
+        `${
+          message.role === "user"
+            ? "العميل"
+            : "الوكيل"
+        }: ${message.content}`
     )
     .join("\n\n");
 }
+
+function autoTitleConversation(
+  conversation,
+  firstMessage
+) {
+  if (
+    !conversation ||
+    !firstMessage
+  ) {
+    return;
+  }
+
+  const currentTitle =
+    String(
+      conversation.title || ""
+    ).trim();
+
+  if (
+    currentTitle &&
+    currentTitle !==
+      "محادثة جديدة"
+  ) {
+    return;
+  }
+
+  let title =
+    cleanText(
+      firstMessage,
+      55
+    );
+
+  if (
+    title.length >= 55
+  ) {
+    title += "...";
+  }
+
+  conversation.title =
+    title ||
+    "محادثة جديدة";
+}
+
+/* =========================
+   MULTI CONVERSATION API
+========================= */
+
+/*
+  GET /api/conversations
+  قائمة محادثات المستخدم
+*/
+
+app.get(
+  "/api/conversations",
+  requireAuth,
+  (req, res) => {
+    let conversations =
+      getUserConversations(
+        req.user.id
+      );
+
+    if (!conversations.length) {
+      conversations = [
+        createConversation(
+          req.user.id
+        )
+      ];
+    }
+
+    res.json({
+      conversations:
+        conversations.map(
+          conversationSummary
+        )
+    });
+  }
+);
+
+/*
+  POST /api/conversations
+  إنشاء محادثة جديدة
+*/
+
+app.post(
+  "/api/conversations",
+  requireAuth,
+  (req, res) => {
+    const title =
+      cleanText(
+        req.body?.title,
+        80
+      ) ||
+      "محادثة جديدة";
+
+    const conversation =
+      createConversation(
+        req.user.id,
+        title
+      );
+
+    res.status(201).json({
+      conversation:
+        conversationSummary(
+          conversation
+        )
+    });
+  }
+);
+
+/*
+  GET /api/conversations/:id
+*/
+
+app.get(
+  "/api/conversations/:id",
+  requireAuth,
+  (req, res) => {
+    const conversation =
+      getConversationById(
+        req.user.id,
+        String(
+          req.params.id
+        )
+      );
+
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({
+          error:
+            "المحادثة غير موجودة"
+        });
+    }
+
+    res.json({
+      conversation: {
+        ...conversationSummary(
+          conversation
+        ),
+
+        messages:
+          conversation.messages
+      }
+    });
+  }
+);
+
+/*
+  PUT /api/conversations/:id
+  تغيير اسم المحادثة
+*/
+
+app.put(
+  "/api/conversations/:id",
+  requireAuth,
+  (req, res) => {
+    const conversation =
+      getConversationById(
+        req.user.id,
+        String(
+          req.params.id
+        )
+      );
+
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({
+          error:
+            "المحادثة غير موجودة"
+        });
+    }
+
+    const title =
+      cleanText(
+        req.body?.title,
+        80
+      );
+
+    if (!title) {
+      return res
+        .status(400)
+        .json({
+          error:
+            "اسم المحادثة غير صالح"
+        });
+    }
+
+    conversation.title =
+      title;
+
+    conversation.updatedAt =
+      iso(now());
+
+    saveDb();
+
+    res.json({
+      conversation:
+        conversationSummary(
+          conversation
+        )
+    });
+  }
+);
+
+/*
+  DELETE /api/conversations/:id/messages
+  مسح رسائل محادثة مع إبقاء المحادثة نفسها
+*/
+
+app.delete(
+  "/api/conversations/:id/messages",
+  requireAuth,
+  (req, res) => {
+    const conversation =
+      getConversationById(
+        req.user.id,
+        String(
+          req.params.id
+        )
+      );
+
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({
+          error:
+            "المحادثة غير موجودة"
+        });
+    }
+
+    conversation.messages = [];
+
+    conversation.title =
+      "محادثة جديدة";
+
+    conversation.updatedAt =
+      iso(now());
+
+    saveDb();
+
+    res.json({
+      ok: true,
+      conversation:
+        conversationSummary(
+          conversation
+        )
+    });
+  }
+);
+
+/*
+  DELETE /api/conversations/:id
+  حذف محادثة كاملة.
+
+  إذا بقي المستخدم بدون أي محادثة،
+  ننشئ له محادثة فارغة تلقائياً.
+*/
+
+app.delete(
+  "/api/conversations/:id",
+  requireAuth,
+  (req, res) => {
+    const conversation =
+      getConversationById(
+        req.user.id,
+        String(
+          req.params.id
+        )
+      );
+
+    if (!conversation) {
+      return res
+        .status(404)
+        .json({
+          error:
+            "المحادثة غير موجودة"
+        });
+    }
+
+    db.conversations =
+      db.conversations.filter(
+        item =>
+          item.id !==
+          conversation.id
+      );
+
+    let nextConversation =
+      getUserConversations(
+        req.user.id
+      )[0];
+
+    if (!nextConversation) {
+      nextConversation =
+        makeConversation(
+          req.user.id
+        );
+
+      db.conversations.push(
+        nextConversation
+      );
+    }
+
+    saveDb();
+
+    res.json({
+      ok: true,
+
+      conversation:
+        conversationSummary(
+          nextConversation
+        )
+    });
+  }
+);
+
+/* =========================
+   LEGACY CONVERSATION API
+   للتوافق مع النسخة القديمة
+========================= */
 
 app.get(
   "/api/conversation",
@@ -587,6 +1132,12 @@ app.get(
       );
 
     res.json({
+      conversationId:
+        conversation.id,
+
+      title:
+        conversation.title,
+
       messages:
         conversation.messages
     });
@@ -603,13 +1154,20 @@ app.delete(
       );
 
     conversation.messages = [];
+
+    conversation.title =
+      "محادثة جديدة";
+
     conversation.updatedAt =
       iso(now());
 
     saveDb();
 
     res.json({
-      ok: true
+      ok: true,
+
+      conversationId:
+        conversation.id
     });
   }
 );
@@ -937,8 +1495,10 @@ app.get(
   (_req, res) => {
     res.json({
       ok: true,
+
       aiConfigured:
         !!client,
+
       frontend:
         fs.existsSync(
           path.join(
@@ -946,9 +1506,18 @@ app.get(
             "index.html"
           )
         ),
-      imageAccess: false,
-      knowledgeBase: true,
-      conversationMemory: true
+
+      imageAccess:
+        false,
+
+      knowledgeBase:
+        true,
+
+      conversationMemory:
+        true,
+
+      multipleConversations:
+        true
     });
   }
 );
@@ -1041,7 +1610,10 @@ app.post(
     db.users.push(user);
 
     getKnowledge(user.id);
-    getConversation(user.id);
+
+    createConversation(
+      user.id
+    );
 
     saveDb();
 
@@ -1107,7 +1679,9 @@ app.post(
         });
     }
 
-    getConversation(user.id);
+    getConversation(
+      user.id
+    );
 
     const s =
       createSession(
@@ -1407,9 +1981,46 @@ app.post(
           });
       }
 
+      /*
+        إذا أرسل الواجهة conversationId
+        نستخدم تلك المحادثة فقط.
+        وإذا لم ترسله، نستخدم آخر محادثة
+        للتوافق مع النسخة القديمة.
+      */
+
+      const conversationId =
+        cleanText(
+          req.body?.conversationId,
+          200
+        ) || null;
+
+      const conversation =
+        getConversation(
+          req.user.id,
+          conversationId
+        );
+
+      /*
+        إذا أرسل المستخدم ID غير تابع له،
+        لا نسمح بالوصول إليه.
+      */
+
+      if (
+        conversationId &&
+        conversation.id !==
+          conversationId
+      ) {
+        return res
+          .status(404)
+          .json({
+            error:
+              "المحادثة غير موجودة"
+          });
+      }
+
       const previousConversation =
         conversationForAI(
-          req.user.id
+          conversation
         );
 
       const response =
@@ -1435,17 +2046,33 @@ app.post(
         response.output_text ||
         "لم أستطع توليد رد الآن.";
 
+      const wasEmpty =
+        conversation.messages.length ===
+        0;
+
       addConversationMessage(
-        req.user.id,
+        conversation,
         "user",
         message
       );
 
       addConversationMessage(
-        req.user.id,
+        conversation,
         "assistant",
         reply
       );
+
+      if (wasEmpty) {
+        autoTitleConversation(
+          conversation,
+          message
+        );
+      }
+
+      conversation.updatedAt =
+        iso(now());
+
+      saveDb();
 
       addUsage(
         req.user.id
@@ -1453,6 +2080,12 @@ app.post(
 
       res.json({
         reply,
+
+        conversationId:
+          conversation.id,
+
+        conversationTitle:
+          conversation.title,
 
         usage:
           usageCount(
@@ -1950,6 +2583,9 @@ app.get(
         true,
 
       conversationMemory:
+        true,
+
+      multipleConversations:
         true,
 
       starterManual:
