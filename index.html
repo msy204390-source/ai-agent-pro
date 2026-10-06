@@ -20,6 +20,7 @@
   --accent2:#5ee7ff;
   --danger:#ff5577;
   --user:#18243a;
+  --success:#36d98b;
 }
 
 body{
@@ -191,7 +192,31 @@ button,textarea{font:inherit}
   font-size:12px;
 }
 
-.user-info span{color:var(--muted);font-size:10px}
+.user-info span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.plan-status{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-top:3px;
+  font-size:10px !important;
+  color:#aeb9c9 !important;
+}
+
+.plan-status.trial{
+  color:#bdaeff !important;
+}
+
+.plan-status.paid{
+  color:#6ee7ad !important;
+}
+
+.plan-status.expired{
+  color:#ff829c !important;
+}
 
 .logout{
   border:0;
@@ -267,6 +292,43 @@ button,textarea{font:inherit}
   box-shadow:0 0 10px rgba(54,217,139,.7);
 }
 
+.quota-badge{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 12px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+  color:#cfd7e4;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+.quota-badge.trial{
+  border-color:rgba(124,92,255,.28);
+  background:rgba(124,92,255,.08);
+}
+
+.quota-badge.paid{
+  border-color:rgba(54,217,139,.22);
+  background:rgba(54,217,139,.06);
+}
+
+.quota-badge.expired{
+  border-color:rgba(255,85,119,.22);
+  background:rgba(255,85,119,.06);
+  color:#ff91a8;
+}
+
+.quota-icon{
+  font-size:14px;
+}
+
+.quota-text{
+  font-weight:700;
+}
+
 .messages{
   flex:1;
   overflow-y:auto;
@@ -302,12 +364,30 @@ button,textarea{font:inherit}
   box-shadow:0 15px 45px rgba(124,92,255,.25);
 }
 
-.welcome h1{font-size:27px;margin-bottom:9px}
+.welcome h1{
+  font-size:27px;
+  margin-bottom:9px;
+}
 
 .welcome p{
   color:var(--muted);
   font-size:13px;
   line-height:1.8;
+}
+
+.welcome-quota{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin-top:17px;
+  padding:9px 14px;
+  border-radius:12px;
+  background:rgba(124,92,255,.09);
+  border:1px solid rgba(124,92,255,.22);
+  color:#c7bcff;
+  font-size:11px;
+  font-weight:700;
 }
 
 .message{
@@ -554,6 +634,7 @@ button,textarea{font:inherit}
 }
 
 @media(max-width:720px){
+
   .sidebar{
     position:fixed;
     right:0;
@@ -565,6 +646,7 @@ button,textarea{font:inherit}
   }
 
   .sidebar.open{transform:translateX(0)}
+
   .mobile-menu{display:block}
 
   .topbar{
@@ -572,12 +654,49 @@ button,textarea{font:inherit}
     padding:0 12px;
   }
 
-  .messages{padding:18px 11px 12px}
-  .composer-wrap{padding:7px 10px 12px}
-  .composer{border-radius:15px}
+  .quota-badge{
+    padding:7px 9px;
+    font-size:9px;
+  }
+
+  .quota-icon{
+    font-size:12px;
+  }
+
+  .messages{
+    padding:18px 11px 12px;
+  }
+
+  .composer-wrap{
+    padding:7px 10px 12px;
+  }
+
+  .composer{
+    border-radius:15px;
+  }
+
   .hint{display:none}
+
   .welcome h1{font-size:23px}
+
+  .welcome-quota{
+    font-size:10px;
+  }
+
   .msg-body{max-width:86%}
+}
+
+@media(max-width:420px){
+
+  .quota-text{
+    max-width:115px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .chat-title{
+    max-width:120px;
+  }
 }
 </style>
 </head>
@@ -614,8 +733,16 @@ button,textarea{font:inherit}
         <div class="avatar" id="avatar">U</div>
 
         <div class="user-info">
+
           <strong id="userName">المستخدم</strong>
-          <span id="userPlan">AI Agent Pro</span>
+
+          <span
+            id="userPlan"
+            class="plan-status"
+          >
+            جاري التحميل...
+          </span>
+
         </div>
 
         <button
@@ -660,6 +787,20 @@ button,textarea{font:inherit}
 
       </div>
 
+      <div
+        id="quotaBadge"
+        class="quota-badge trial"
+      >
+        <span class="quota-icon">🎁</span>
+
+        <span
+          id="quotaText"
+          class="quota-text"
+        >
+          تجربة مجانية · جاري التحميل...
+        </span>
+      </div>
+
     </header>
 
     <section class="messages" id="messages">
@@ -685,6 +826,13 @@ button,textarea{font:inherit}
               مساعدك الذكي لإنجاز المهام، الإجابة عن الأسئلة،
               وتحويل أفكارك إلى نتائج.
             </p>
+
+            <div
+              id="welcomeQuota"
+              class="welcome-quota"
+            >
+              🎁 تجربة مجانية · جاري التحميل...
+            </div>
 
           </div>
 
@@ -799,6 +947,20 @@ let renameTargetId = null;
 let menuTargetId = null;
 let isSending = false;
 
+/* =========================
+   حالة الاشتراك والرسائل
+========================= */
+
+let accountState = {
+  plan: null,
+  usage: 0,
+  limit: 20,
+  trialMessagesUsed: 0,
+  trialMessagesLimit: 20,
+  remaining: 20,
+  trial: true
+};
+
 const $ = id => document.getElementById(id);
 
 async function api(url, options = {}) {
@@ -853,7 +1015,242 @@ function escapeHtml(text) {
     .replaceAll("'", "&#039;");
 }
 
-/* USER */
+/* =========================
+   عرض حالة الرسائل
+========================= */
+
+function updateQuotaUI(userOrData = {}) {
+
+  const plan =
+    userOrData.plan ??
+    accountState.plan;
+
+  const usage =
+    Number(
+      userOrData.usage ??
+      accountState.usage ??
+      0
+    );
+
+  const limit =
+    Number(
+      userOrData.limit ??
+      accountState.limit ??
+      0
+    );
+
+  const trialMessagesUsed =
+    Number(
+      userOrData.trialMessagesUsed ??
+      accountState.trialMessagesUsed ??
+      0
+    );
+
+  const trialMessagesLimit =
+    Number(
+      userOrData.trialMessagesLimit ??
+      accountState.trialMessagesLimit ??
+      20
+    );
+
+  const isTrial =
+    plan === "trial" ||
+    (
+      !plan &&
+      trialMessagesUsed <
+        trialMessagesLimit
+    );
+
+  let remaining = 0;
+
+  if (isTrial) {
+
+    remaining =
+      Math.max(
+        0,
+        trialMessagesLimit -
+        trialMessagesUsed
+      );
+
+  } else if (plan && limit > 0) {
+
+    remaining =
+      Math.max(
+        0,
+        limit - usage
+      );
+
+  } else {
+
+    remaining = 0;
+  }
+
+  accountState = {
+    plan,
+    usage,
+    limit,
+    trialMessagesUsed,
+    trialMessagesLimit,
+    remaining,
+    trial: isTrial
+  };
+
+  const badge =
+    $("quotaBadge");
+
+  const quotaText =
+    $("quotaText");
+
+  const welcomeQuota =
+    $("welcomeQuota");
+
+  const userPlan =
+    $("userPlan");
+
+  if (!badge || !quotaText)
+    return;
+
+  badge.classList.remove(
+    "trial",
+    "paid",
+    "expired"
+  );
+
+  if (isTrial) {
+
+    if (remaining > 0) {
+
+      badge.classList.add(
+        "trial"
+      );
+
+      quotaText.textContent =
+        `🎁 تجربة مجانية · المتبقي ${remaining} رسالة`;
+
+      if (welcomeQuota) {
+
+        welcomeQuota.textContent =
+          `🎁 تجربة مجانية · متبقي ${remaining} من ${trialMessagesLimit} رسالة`;
+
+        welcomeQuota.style.display =
+          "inline-flex";
+      }
+
+      if (userPlan) {
+
+        userPlan.className =
+          "plan-status trial";
+
+        userPlan.textContent =
+          `🎁 تجربة مجانية · ${remaining} رسالة متبقية`;
+      }
+
+    } else {
+
+      badge.classList.add(
+        "expired"
+      );
+
+      quotaText.textContent =
+        "انتهت التجربة المجانية";
+
+      if (welcomeQuota) {
+
+        welcomeQuota.textContent =
+          "🔒 انتهت التجربة المجانية · اشترك للمتابعة";
+
+        welcomeQuota.style.display =
+          "inline-flex";
+      }
+
+      if (userPlan) {
+
+        userPlan.className =
+          "plan-status expired";
+
+        userPlan.textContent =
+          "🔒 انتهت التجربة المجانية";
+      }
+    }
+
+    return;
+  }
+
+  if (plan && limit > 0) {
+
+    badge.classList.add(
+      "paid"
+    );
+
+    quotaText.textContent =
+      `${formatPlanName(plan)} · المتبقي ${remaining} رسالة`;
+
+    if (welcomeQuota) {
+
+      welcomeQuota.textContent =
+        `✓ ${formatPlanName(plan)} · متبقي ${remaining} من ${limit} رسالة`;
+
+      welcomeQuota.style.display =
+        "inline-flex";
+    }
+
+    if (userPlan) {
+
+      userPlan.className =
+        "plan-status paid";
+
+      userPlan.textContent =
+        `✓ ${formatPlanName(plan)} · ${remaining} رسالة متبقية`;
+    }
+
+    return;
+  }
+
+  badge.classList.add(
+    "expired"
+  );
+
+  quotaText.textContent =
+    "🔒 لا توجد رسائل متبقية";
+
+  if (welcomeQuota) {
+
+    welcomeQuota.textContent =
+      "🔒 انتهت الرسائل المجانية · اشترك للمتابعة";
+
+    welcomeQuota.style.display =
+      "inline-flex";
+  }
+
+  if (userPlan) {
+
+    userPlan.className =
+      "plan-status expired";
+
+    userPlan.textContent =
+      "🔒 انتهت الرسائل المجانية";
+  }
+}
+
+function formatPlanName(plan) {
+
+  const names = {
+    starter: "Starter",
+    business: "Business",
+    pro: "Pro",
+    trial: "تجربة مجانية"
+  };
+
+  return (
+    names[plan] ||
+    plan ||
+    "خطة"
+  );
+}
+
+/* =========================
+   USER
+========================= */
 
 async function loadUser() {
 
@@ -861,14 +1258,6 @@ async function loadUser() {
 
     const data =
       await api("/api/me");
-
-    /*
-      /api/me يرجع:
-      { user: null }
-      عندما لا يكون المستخدم مسجلاً.
-
-      لذلك لا يجوز اعتبار data نفسها مستخدماً.
-    */
 
     if (!data || !data.user) {
 
@@ -893,17 +1282,7 @@ async function loadUser() {
     $("avatar").textContent =
       name.trim().charAt(0).toUpperCase() || "U";
 
-    if (user.plan) {
-
-      $("userPlan").textContent =
-        user.plan;
-
-    } else {
-
-      $("userPlan").textContent =
-        "بدون خطة";
-
-    }
+    updateQuotaUI(user);
 
     return true;
 
@@ -916,7 +1295,9 @@ async function loadUser() {
   }
 }
 
-/* CONVERSATIONS */
+/* =========================
+   CONVERSATIONS
+========================= */
 
 async function loadConversations() {
 
@@ -1115,7 +1496,9 @@ async function openConversation(id) {
   }
 }
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
 
 function openConversationMenu(
   event,
@@ -1186,7 +1569,9 @@ document.addEventListener(
   }
 );
 
-/* RENAME */
+/* =========================
+   RENAME
+========================= */
 
 function renameConversation() {
 
@@ -1326,7 +1711,9 @@ $("renameInput")
     }
   );
 
-/* DELETE */
+/* =========================
+   DELETE
+========================= */
 
 async function deleteConversation() {
 
@@ -1429,7 +1816,9 @@ async function deleteConversation() {
   }
 }
 
-/* MESSAGES */
+/* =========================
+   MESSAGES
+========================= */
 
 function renderMessages(messages) {
 
@@ -1455,10 +1844,19 @@ function renderMessages(messages) {
             اكتب أي شيء تريد مساعدتك فيه.
           </p>
 
+          <div
+            id="welcomeQuota"
+            class="welcome-quota"
+          >
+            🎁 تجربة مجانية · جاري التحميل...
+          </div>
+
         </div>
 
       </div>
     `;
+
+    updateQuotaUI(accountState);
 
     return;
   }
@@ -1554,7 +1952,9 @@ function scrollToBottom() {
   }, 20);
 }
 
-/* SEND */
+/* =========================
+   SEND
+========================= */
 
 async function sendMessage() {
 
@@ -1569,6 +1969,32 @@ async function sendMessage() {
 
   if (!message)
     return;
+
+  /*
+    منع الإرسال من الواجهة
+    إذا انتهت الرسائل المجانية.
+    السيرفر هو الحماية الأساسية أيضاً.
+  */
+
+  if (
+    accountState.remaining <= 0
+  ) {
+
+    if (accountState.trial) {
+
+      showToast(
+        "انتهت رسائلك المجانية الـ20. اشترك للمتابعة."
+      );
+
+    } else {
+
+      showToast(
+        "وصلت إلى حد الرسائل في خطتك."
+      );
+    }
+
+    return;
+  }
 
   if (!currentConversationId) {
 
@@ -1625,6 +2051,62 @@ async function sendMessage() {
       "لم يصل رد."
     );
 
+    /*
+      تحديث عدد الرسائل
+      المتبقية مباشرة بعد
+      نجاح الرسالة.
+    */
+
+    if (
+      typeof data.usage ===
+      "number"
+    ) {
+
+      const newUsage =
+        Number(data.usage);
+
+      const newLimit =
+        Number(
+          data.limit ||
+          accountState.limit
+        );
+
+      const isTrial =
+        data.trial === true;
+
+      if (isTrial) {
+
+        const trialLimit =
+          Number(
+            accountState.trialMessagesLimit ||
+            20
+          );
+
+        updateQuotaUI({
+          plan: "trial",
+          usage: newUsage,
+          limit: trialLimit,
+          trialMessagesUsed:
+            newUsage,
+          trialMessagesLimit:
+            trialLimit
+        });
+
+      } else {
+
+        updateQuotaUI({
+          plan:
+            accountState.plan,
+          usage: newUsage,
+          limit: newLimit,
+          trialMessagesUsed:
+            accountState.trialMessagesUsed,
+          trialMessagesLimit:
+            accountState.trialMessagesLimit
+        });
+      }
+    }
+
     if (data.conversationId) {
 
       currentConversationId =
@@ -1657,6 +2139,32 @@ async function sendMessage() {
         "تعذر إرسال الرسالة"
       )
     );
+
+    /*
+      إذا رفض السيرفر الرسالة
+      لأن التجربة انتهت، نحدث
+      الواجهة أيضاً.
+    */
+
+    if (
+      error.message &&
+      error.message.includes(
+        "انتهت رسائلك المجانية"
+      )
+    ) {
+
+      updateQuotaUI({
+        plan: "trial",
+        usage:
+          accountState.trialMessagesLimit,
+        limit:
+          accountState.trialMessagesLimit,
+        trialMessagesUsed:
+          accountState.trialMessagesLimit,
+        trialMessagesLimit:
+          accountState.trialMessagesLimit
+      });
+    }
 
     scrollToBottom();
 
@@ -1696,6 +2204,10 @@ async function refreshConversationList() {
   } catch (_) {}
 }
 
+/* =========================
+   COMPOSER
+========================= */
+
 $("composer")
   .addEventListener(
     "submit",
@@ -1708,7 +2220,9 @@ $("composer")
     }
   );
 
-/* TEXTAREA */
+/* =========================
+   TEXTAREA
+========================= */
 
 function resizeTextarea() {
 
@@ -1750,7 +2264,9 @@ $("messageInput")
     }
   );
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 
 function toggleSidebar() {
 
@@ -1769,7 +2285,9 @@ function closeSidebar() {
   }
 }
 
-/* LOGOUT */
+/* =========================
+   LOGOUT
+========================= */
 
 async function logout() {
 
@@ -1796,7 +2314,9 @@ async function logout() {
     "/login.html";
 }
 
-/* START */
+/* =========================
+   START
+========================= */
 
 async function startApp() {
 
