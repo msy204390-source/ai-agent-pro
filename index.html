@@ -38,7 +38,6 @@ button,textarea{font:inherit}
   height:100vh;
 }
 
-/* SIDEBAR */
 .sidebar{
   width:290px;
   flex-shrink:0;
@@ -70,15 +69,8 @@ button,textarea{font:inherit}
   box-shadow:0 8px 28px rgba(124,92,255,.28);
 }
 
-.brand-text strong{
-  display:block;
-  font-size:16px;
-}
-
-.brand-text span{
-  color:var(--muted);
-  font-size:11px;
-}
+.brand-text strong{display:block;font-size:16px}
+.brand-text span{color:var(--muted);font-size:11px}
 
 .new-chat{
   border:0;
@@ -121,14 +113,8 @@ button,textarea{font:inherit}
   transition:.18s;
 }
 
-.conversation:hover{
-  background:rgba(255,255,255,.05);
-}
-
-.conversation.active{
-  background:rgba(124,92,255,.14);
-  color:white;
-}
+.conversation:hover{background:rgba(255,255,255,.05)}
+.conversation.active{background:rgba(124,92,255,.14);color:white}
 
 .conv-icon{
   width:27px;
@@ -160,10 +146,7 @@ button,textarea{font:inherit}
   cursor:pointer;
 }
 
-.conv-more:hover{
-  background:rgba(255,255,255,.08);
-  color:white;
-}
+.conv-more:hover{background:rgba(255,255,255,.08);color:white}
 
 .empty{
   color:#697588;
@@ -208,10 +191,7 @@ button,textarea{font:inherit}
   font-size:12px;
 }
 
-.user-info span{
-  color:var(--muted);
-  font-size:10px;
-}
+.user-info span{color:var(--muted);font-size:10px}
 
 .logout{
   border:0;
@@ -227,7 +207,6 @@ button,textarea{font:inherit}
   background:rgba(255,255,255,.05);
 }
 
-/* MAIN */
 .main{
   flex:1;
   min-width:0;
@@ -288,7 +267,6 @@ button,textarea{font:inherit}
   box-shadow:0 0 10px rgba(54,217,139,.7);
 }
 
-/* MESSAGES */
 .messages{
   flex:1;
   overflow-y:auto;
@@ -309,9 +287,7 @@ button,textarea{font:inherit}
   text-align:center;
 }
 
-.welcome-box{
-  max-width:520px;
-}
+.welcome-box{max-width:520px}
 
 .welcome-logo{
   width:65px;
@@ -326,10 +302,7 @@ button,textarea{font:inherit}
   box-shadow:0 15px 45px rgba(124,92,255,.25);
 }
 
-.welcome h1{
-  font-size:27px;
-  margin-bottom:9px;
-}
+.welcome h1{font-size:27px;margin-bottom:9px}
 
 .welcome p{
   color:var(--muted);
@@ -349,9 +322,7 @@ button,textarea{font:inherit}
   to{opacity:1;transform:none}
 }
 
-.message.user{
-  flex-direction:row-reverse;
-}
+.message.user{flex-direction:row-reverse}
 
 .msg-avatar{
   width:32px;
@@ -368,13 +339,9 @@ button,textarea{font:inherit}
   background:linear-gradient(135deg,var(--accent),var(--accent2));
 }
 
-.message.user .msg-avatar{
-  background:#24314a;
-}
+.message.user .msg-avatar{background:#24314a}
 
-.msg-body{
-  max-width:min(720px,82%);
-}
+.msg-body{max-width:min(720px,82%)}
 
 .msg-name{
   font-size:10px;
@@ -382,9 +349,7 @@ button,textarea{font:inherit}
   margin-bottom:5px;
 }
 
-.message.user .msg-name{
-  text-align:right;
-}
+.message.user .msg-name{text-align:right}
 
 .msg-content{
   line-height:1.8;
@@ -400,11 +365,8 @@ button,textarea{font:inherit}
   padding:11px 14px;
 }
 
-.message.assistant .msg-content{
-  padding-top:1px;
-}
+.message.assistant .msg-content{padding-top:1px}
 
-/* TYPING */
 .typing{
   display:none;
   gap:5px;
@@ -433,10 +395,7 @@ button,textarea{font:inherit}
   30%{transform:translateY(-4px);opacity:1}
 }
 
-/* COMPOSER */
-.composer-wrap{
-  padding:10px 18px 18px;
-}
+.composer-wrap{padding:10px 18px 18px}
 
 .composer{
   width:min(850px,100%);
@@ -465,9 +424,7 @@ button,textarea{font:inherit}
   font-size:14px;
 }
 
-.composer textarea::placeholder{
-  color:#667388;
-}
+.composer textarea::placeholder{color:#667388}
 
 .send{
   width:42px;
@@ -482,10 +439,7 @@ button,textarea{font:inherit}
   font-weight:900;
 }
 
-.send:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
+.send:disabled{opacity:.45;cursor:not-allowed}
 
 .hint{
   width:min(850px,100%);
@@ -495,7 +449,6 @@ button,textarea{font:inherit}
   font-size:9px;
 }
 
-/* MODAL */
 .overlay{
   display:none;
   position:fixed;
@@ -519,10 +472,7 @@ button,textarea{font:inherit}
   box-shadow:0 25px 80px rgba(0,0,0,.45);
 }
 
-.modal h3{
-  font-size:16px;
-  margin-bottom:13px;
-}
+.modal h3{font-size:16px;margin-bottom:13px}
 
 .modal input{
   width:100%;
@@ -549,17 +499,9 @@ button,textarea{font:inherit}
   font-weight:700;
 }
 
-.cancel{
-  background:#202a3a;
-  color:#dce3ee;
-}
+.cancel{background:#202a3a;color:#dce3ee}
+.confirm{background:var(--accent);color:white}
 
-.confirm{
-  background:var(--accent);
-  color:white;
-}
-
-/* CONTEXT MENU */
 .menu{
   display:none;
   position:fixed;
@@ -586,15 +528,9 @@ button,textarea{font:inherit}
   font-size:12px;
 }
 
-.menu button:hover{
-  background:rgba(255,255,255,.06);
-}
+.menu button:hover{background:rgba(255,255,255,.06)}
+.menu .danger{color:#ff6685}
 
-.menu .danger{
-  color:#ff6685;
-}
-
-/* TOAST */
 .toast{
   position:fixed;
   bottom:25px;
@@ -617,7 +553,6 @@ button,textarea{font:inherit}
   transform:translate(-50%,0);
 }
 
-/* MOBILE */
 @media(max-width:720px){
   .sidebar{
     position:fixed;
@@ -629,40 +564,20 @@ button,textarea{font:inherit}
     box-shadow:-20px 0 50px rgba(0,0,0,.3);
   }
 
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .mobile-menu{
-    display:block;
-  }
+  .sidebar.open{transform:translateX(0)}
+  .mobile-menu{display:block}
 
   .topbar{
     height:58px;
     padding:0 12px;
   }
 
-  .messages{
-    padding:18px 11px 12px;
-  }
-
-  .composer-wrap{
-    padding:7px 10px 12px;
-  }
-
-  .composer{
-    border-radius:15px;
-  }
-
+  .messages{padding:18px 11px 12px}
+  .composer-wrap{padding:7px 10px 12px}
+  .composer{border-radius:15px}
   .hint{display:none}
-
-  .welcome h1{
-    font-size:23px;
-  }
-
-  .msg-body{
-    max-width:86%;
-  }
+  .welcome h1{font-size:23px}
+  .msg-body{max-width:86%}
 }
 </style>
 </head>
@@ -675,6 +590,7 @@ button,textarea{font:inherit}
 
     <div class="brand">
       <div class="logo">AI</div>
+
       <div class="brand-text">
         <strong>AI Agent Pro</strong>
         <span>Smart AI Workspace</span>
@@ -692,7 +608,9 @@ button,textarea{font:inherit}
     </div>
 
     <div class="user-card">
+
       <div class="user-row">
+
         <div class="avatar" id="avatar">U</div>
 
         <div class="user-info">
@@ -700,10 +618,16 @@ button,textarea{font:inherit}
           <span id="userPlan">AI Agent Pro</span>
         </div>
 
-        <button class="logout" onclick="logout()" title="تسجيل الخروج">
+        <button
+          class="logout"
+          onclick="logout()"
+          title="تسجيل الخروج"
+        >
           ⎋
         </button>
+
       </div>
+
     </div>
 
   </aside>
@@ -713,29 +637,49 @@ button,textarea{font:inherit}
     <header class="topbar">
 
       <div class="top-left">
-        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+
+        <button
+          class="mobile-menu"
+          onclick="toggleSidebar()"
+        >
+          ☰
+        </button>
 
         <div>
-          <div class="chat-title" id="chatTitle">محادثة جديدة</div>
+
+          <div class="chat-title" id="chatTitle">
+            محادثة جديدة
+          </div>
 
           <div class="status">
             <span class="status-dot"></span>
             متصل
           </div>
+
         </div>
+
       </div>
 
     </header>
 
     <section class="messages" id="messages">
-      <div class="messages-inner" id="messagesInner">
+
+      <div
+        class="messages-inner"
+        id="messagesInner"
+      >
 
         <div class="welcome" id="welcome">
+
           <div class="welcome-box">
 
-            <div class="welcome-logo">AI</div>
+            <div class="welcome-logo">
+              AI
+            </div>
 
-            <h1>مرحباً بك في AI Agent Pro</h1>
+            <h1>
+              مرحباً بك في AI Agent Pro
+            </h1>
 
             <p>
               مساعدك الذكي لإنجاز المهام، الإجابة عن الأسئلة،
@@ -743,16 +687,23 @@ button,textarea{font:inherit}
             </p>
 
           </div>
+
         </div>
 
       </div>
+
     </section>
 
     <div class="typing" id="typing">
+
       <span></span>
       <span></span>
       <span></span>
-      <label>AI Agent Pro يفكر...</label>
+
+      <label>
+        AI Agent Pro يفكر...
+      </label>
+
     </div>
 
     <div class="composer-wrap">
@@ -766,7 +717,11 @@ button,textarea{font:inherit}
           autocomplete="off"
         ></textarea>
 
-        <button class="send" id="sendButton" type="submit">
+        <button
+          class="send"
+          id="sendButton"
+          type="submit"
+        >
           ↑
         </button>
 
@@ -782,13 +737,13 @@ button,textarea{font:inherit}
 
 </div>
 
-<!-- RENAME MODAL -->
-
 <div class="overlay" id="renameOverlay">
 
   <div class="modal">
 
-    <h3>إعادة تسمية المحادثة</h3>
+    <h3>
+      إعادة تسمية المحادثة
+    </h3>
 
     <input
       id="renameInput"
@@ -799,11 +754,17 @@ button,textarea{font:inherit}
 
     <div class="modal-actions">
 
-      <button class="cancel" onclick="closeRename()">
+      <button
+        class="cancel"
+        onclick="closeRename()"
+      >
         إلغاء
       </button>
 
-      <button class="confirm" onclick="confirmRename()">
+      <button
+        class="confirm"
+        onclick="confirmRename()"
+      >
         حفظ
       </button>
 
@@ -813,15 +774,16 @@ button,textarea{font:inherit}
 
 </div>
 
-<!-- CONTEXT MENU -->
-
 <div class="menu" id="contextMenu">
 
   <button onclick="renameConversation()">
     ✏️ إعادة تسمية
   </button>
 
-  <button class="danger" onclick="deleteConversation()">
+  <button
+    class="danger"
+    onclick="deleteConversation()"
+  >
     🗑️ حذف المحادثة
   </button>
 
@@ -830,6 +792,7 @@ button,textarea{font:inherit}
 <div class="toast" id="toast"></div>
 
 <script>
+
 let conversations = [];
 let currentConversationId = null;
 let renameTargetId = null;
@@ -839,9 +802,11 @@ let isSending = false;
 const $ = id => document.getElementById(id);
 
 async function api(url, options = {}) {
+
   const response = await fetch(url, {
     credentials: "include",
     ...options,
+
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {})
@@ -855,16 +820,20 @@ async function api(url, options = {}) {
   } catch (_) {}
 
   if (!response.ok) {
-    throw new Error(data.error || "حدث خطأ");
+    throw new Error(
+      data.error || "حدث خطأ"
+    );
   }
 
   return data;
 }
 
 function showToast(message) {
+
   const toast = $("toast");
 
   toast.textContent = message;
+
   toast.classList.add("show");
 
   clearTimeout(window.toastTimer);
@@ -875,6 +844,7 @@ function showToast(message) {
 }
 
 function escapeHtml(text) {
+
   return String(text ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -886,10 +856,13 @@ function escapeHtml(text) {
 /* USER */
 
 async function loadUser() {
+
   try {
+
     const data = await api("/api/me");
 
-    const user = data.user || data;
+    const user =
+      data.user || data;
 
     const name =
       user.name ||
@@ -897,21 +870,25 @@ async function loadUser() {
       user.email ||
       "المستخدم";
 
-    $("userName").textContent = name;
+    $("userName").textContent =
+      name;
 
     $("avatar").textContent =
       name.trim().charAt(0).toUpperCase() || "U";
 
     if (user.plan) {
-      $("userPlan").textContent = user.plan;
+      $("userPlan").textContent =
+        user.plan;
     }
+
+    return true;
 
   } catch (error) {
 
-    if (error.message.includes("401") ||
-        error.message.includes("Unauthorized")) {
-      location.href = "/login.html";
-    }
+    location.href =
+      "/login.html";
+
+    return false;
   }
 }
 
@@ -921,7 +898,8 @@ async function loadConversations() {
 
   try {
 
-    const data = await api("/api/conversations");
+    const data =
+      await api("/api/conversations");
 
     conversations =
       Array.isArray(data)
@@ -931,25 +909,42 @@ async function loadConversations() {
     renderConversationList();
 
     if (!conversations.length) {
+
       await createConversation();
+
       return;
     }
 
-    const saved = localStorage.getItem("currentConversationId");
+    const saved =
+      localStorage.getItem(
+        "currentConversationId"
+      );
 
-    const exists = conversations.some(
-      c => String(c.id) === String(saved)
-    );
+    const exists =
+      conversations.some(
+        c =>
+          String(c.id) ===
+          String(saved)
+      );
 
     if (exists) {
+
       await openConversation(saved);
+
     } else {
-      await openConversation(conversations[0].id);
+
+      await openConversation(
+        conversations[0].id
+      );
+
     }
 
   } catch (error) {
 
-    showToast(error.message || "تعذر تحميل المحادثات");
+    showToast(
+      error.message ||
+      "تعذر تحميل المحادثات"
+    );
 
     $("conversationList").innerHTML =
       '<div class="empty">تعذر تحميل المحادثات</div>';
@@ -958,44 +953,54 @@ async function loadConversations() {
 
 function renderConversationList() {
 
-  const list = $("conversationList");
+  const list =
+    $("conversationList");
 
   if (!conversations.length) {
+
     list.innerHTML =
       '<div class="empty">لا توجد محادثات بعد</div>';
+
     return;
   }
 
-  list.innerHTML = conversations.map(c => {
+  list.innerHTML =
+    conversations.map(c => {
 
-    const active =
-      String(c.id) === String(currentConversationId)
-        ? "active"
-        : "";
+      const active =
+        String(c.id) ===
+        String(currentConversationId)
+          ? "active"
+          : "";
 
-    return `
-      <div
-        class="conversation ${active}"
-        onclick="openConversation('${escapeHtml(c.id)}')"
-      >
-
-        <div class="conv-icon">💬</div>
-
-        <div class="conv-name">
-          ${escapeHtml(c.title || "محادثة جديدة")}
-        </div>
-
-        <button
-          class="conv-more"
-          onclick="event.stopPropagation(); openConversationMenu(event, '${escapeHtml(c.id)}')"
+      return `
+        <div
+          class="conversation ${active}"
+          onclick="openConversation('${escapeHtml(c.id)}')"
         >
-          ⋮
-        </button>
 
-      </div>
-    `;
+          <div class="conv-icon">
+            💬
+          </div>
 
-  }).join("");
+          <div class="conv-name">
+            ${escapeHtml(
+              c.title ||
+              "محادثة جديدة"
+            )}
+          </div>
+
+          <button
+            class="conv-more"
+            onclick="event.stopPropagation(); openConversationMenu(event, '${escapeHtml(c.id)}')"
+          >
+            ⋮
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
 }
 
 async function createConversation() {
@@ -1004,21 +1009,28 @@ async function createConversation() {
 
   try {
 
-    const data = await api("/api/conversations", {
-      method: "POST",
-      body: JSON.stringify({
-        title: "محادثة جديدة"
-      })
-    });
+    const data =
+      await api("/api/conversations", {
+        method: "POST",
+
+        body: JSON.stringify({
+          title: "محادثة جديدة"
+        })
+      });
 
     const conversation =
-      data.conversation || data;
+      data.conversation ||
+      data;
 
-    conversations.unshift(conversation);
+    conversations.unshift(
+      conversation
+    );
 
     renderConversationList();
 
-    await openConversation(conversation.id);
+    await openConversation(
+      conversation.id
+    );
 
     closeSidebar();
 
@@ -1027,7 +1039,11 @@ async function createConversation() {
     }, 100);
 
   } catch (error) {
-    showToast(error.message || "تعذر إنشاء المحادثة");
+
+    showToast(
+      error.message ||
+      "تعذر إنشاء المحادثة"
+    );
   }
 }
 
@@ -1037,14 +1053,17 @@ async function openConversation(id) {
 
   try {
 
-    const data = await api(
-      `/api/conversations/${encodeURIComponent(id)}`
-    );
+    const data =
+      await api(
+        `/api/conversations/${encodeURIComponent(id)}`
+      );
 
     const conversation =
-      data.conversation || data;
+      data.conversation ||
+      data;
 
-    currentConversationId = conversation.id;
+    currentConversationId =
+      conversation.id;
 
     localStorage.setItem(
       "currentConversationId",
@@ -1052,9 +1071,12 @@ async function openConversation(id) {
     );
 
     $("chatTitle").textContent =
-      conversation.title || "محادثة جديدة";
+      conversation.title ||
+      "محادثة جديدة";
 
-    renderMessages(conversation.messages || []);
+    renderMessages(
+      conversation.messages || []
+    );
 
     renderConversationList();
 
@@ -1062,117 +1084,172 @@ async function openConversation(id) {
 
   } catch (error) {
 
-    showToast(error.message || "تعذر فتح المحادثة");
+    showToast(
+      error.message ||
+      "تعذر فتح المحادثة"
+    );
   }
 }
 
 /* MENU */
 
-function openConversationMenu(event, id) {
+function openConversationMenu(
+  event,
+  id
+) {
 
   event.preventDefault();
 
   menuTargetId = id;
 
-  const menu = $("contextMenu");
+  const menu =
+    $("contextMenu");
 
-  const rect = event.currentTarget.getBoundingClientRect();
+  const rect =
+    event.currentTarget
+      .getBoundingClientRect();
 
-  let left = rect.left - 150;
-  let top = rect.bottom + 5;
+  let left =
+    rect.left - 150;
 
-  if (left < 8) left = 8;
+  let top =
+    rect.bottom + 5;
 
-  if (top + 100 > window.innerHeight) {
-    top = rect.top - 105;
+  if (left < 8)
+    left = 8;
+
+  if (
+    top + 100 >
+    window.innerHeight
+  ) {
+    top =
+      rect.top - 105;
   }
 
-  menu.style.left = left + "px";
-  menu.style.top = top + "px";
+  menu.style.left =
+    left + "px";
 
-  menu.classList.add("show");
+  menu.style.top =
+    top + "px";
+
+  menu.classList.add(
+    "show"
+  );
 }
 
 function closeMenu() {
-  $("contextMenu").classList.remove("show");
+
+  $("contextMenu")
+    .classList.remove("show");
+
   menuTargetId = null;
 }
 
-document.addEventListener("click", event => {
+document.addEventListener(
+  "click",
+  event => {
 
-  const menu = $("contextMenu");
+    const menu =
+      $("contextMenu");
 
-  if (
-    menu.classList.contains("show") &&
-    !menu.contains(event.target)
-  ) {
-    closeMenu();
+    if (
+      menu.classList.contains("show") &&
+      !menu.contains(event.target)
+    ) {
+      closeMenu();
+    }
+
   }
-
-});
+);
 
 /* RENAME */
 
 function renameConversation() {
 
-  if (!menuTargetId) return;
+  if (!menuTargetId)
+    return;
 
-  renameTargetId = menuTargetId;
+  renameTargetId =
+    menuTargetId;
 
   const conversation =
     conversations.find(
-      c => String(c.id) === String(renameTargetId)
+      c =>
+        String(c.id) ===
+        String(renameTargetId)
     );
 
   $("renameInput").value =
-    conversation?.title || "محادثة جديدة";
+    conversation?.title ||
+    "محادثة جديدة";
 
-  $("renameOverlay").classList.add("show");
+  $("renameOverlay")
+    .classList.add("show");
 
   closeMenu();
 
   setTimeout(() => {
+
     $("renameInput").focus();
+
     $("renameInput").select();
+
   }, 50);
 }
 
 function closeRename() {
-  $("renameOverlay").classList.remove("show");
+
+  $("renameOverlay")
+    .classList.remove("show");
+
   renameTargetId = null;
 }
 
 async function confirmRename() {
 
-  if (!renameTargetId) return;
+  if (!renameTargetId)
+    return;
 
   const title =
-    $("renameInput").value.trim();
+    $("renameInput")
+      .value.trim();
 
   if (!title) {
-    showToast("اكتبي اسم المحادثة أولاً");
+
+    showToast(
+      "اكتبي اسم المحادثة أولاً"
+    );
+
     return;
   }
 
   try {
 
-    const data = await api(
-      `/api/conversations/${encodeURIComponent(renameTargetId)}`,
-      {
-        method: "PUT",
-        body: JSON.stringify({ title })
-      }
-    );
+    const data =
+      await api(
+        `/api/conversations/${encodeURIComponent(renameTargetId)}`,
+        {
+          method: "PUT",
+
+          body: JSON.stringify({
+            title
+          })
+        }
+      );
 
     const updated =
-      data.conversation || data;
+      data.conversation ||
+      data;
 
     const index =
       conversations.findIndex(
-        c => String(c.id) === String(renameTargetId)
+        c =>
+          String(c.id) ===
+          String(renameTargetId)
       );
 
     if (index !== -1) {
+
       conversations[index] = {
         ...conversations[index],
         ...updated,
@@ -1184,69 +1261,98 @@ async function confirmRename() {
       String(currentConversationId) ===
       String(renameTargetId)
     ) {
-      $("chatTitle").textContent = title;
+
+      $("chatTitle")
+        .textContent = title;
     }
 
     renderConversationList();
 
     closeRename();
 
-    showToast("تم تغيير اسم المحادثة");
+    showToast(
+      "تم تغيير اسم المحادثة"
+    );
 
   } catch (error) {
 
-    showToast(error.message || "تعذر تغيير الاسم");
+    showToast(
+      error.message ||
+      "تعذر تغيير الاسم"
+    );
   }
 }
 
-$("renameInput").addEventListener("keydown", event => {
+$("renameInput")
+  .addEventListener(
+    "keydown",
+    event => {
 
-  if (event.key === "Enter") {
-    event.preventDefault();
-    confirmRename();
-  }
+      if (event.key === "Enter") {
 
-  if (event.key === "Escape") {
-    closeRename();
-  }
+        event.preventDefault();
 
-});
+        confirmRename();
+      }
+
+      if (event.key === "Escape") {
+        closeRename();
+      }
+
+    }
+  );
 
 /* DELETE */
 
 async function deleteConversation() {
 
-  if (!menuTargetId) return;
+  if (!menuTargetId)
+    return;
 
-  const id = menuTargetId;
+  const id =
+    menuTargetId;
 
   closeMenu();
 
   const conversation =
     conversations.find(
-      c => String(c.id) === String(id)
+      c =>
+        String(c.id) ===
+        String(id)
     );
 
   const title =
-    conversation?.title || "هذه المحادثة";
+    conversation?.title ||
+    "هذه المحادثة";
 
-  if (!confirm(`حذف "${title}"؟`)) return;
+  if (
+    !confirm(
+      `حذف "${title}"؟`
+    )
+  )
+    return;
 
   try {
 
-    const data = await api(
-      `/api/conversations/${encodeURIComponent(id)}`,
-      {
-        method: "DELETE"
-      }
-    );
+    const data =
+      await api(
+        `/api/conversations/${encodeURIComponent(id)}`,
+        {
+          method: "DELETE"
+        }
+      );
 
     conversations =
       conversations.filter(
-        c => String(c.id) !== String(id)
+        c =>
+          String(c.id) !==
+          String(id)
       );
 
-    if (String(currentConversationId) === String(id)) {
+    if (
+      String(currentConversationId) ===
+      String(id)
+    ) {
 
       const remaining =
         conversations[0] ||
@@ -1258,35 +1364,44 @@ async function deleteConversation() {
         conversations.unshift(
           ...(
             conversations.some(
-              c => String(c.id) === String(remaining.id)
+              c =>
+                String(c.id) ===
+                String(remaining.id)
             )
               ? []
               : [remaining]
           )
         );
 
-        await openConversation(remaining.id);
+        await openConversation(
+          remaining.id
+        );
 
       } else {
 
-        currentConversationId = null;
+        currentConversationId =
+          null;
 
         localStorage.removeItem(
           "currentConversationId"
         );
 
         renderMessages([]);
-
       }
     }
 
     renderConversationList();
 
-    showToast("تم حذف المحادثة");
+    showToast(
+      "تم حذف المحادثة"
+    );
 
   } catch (error) {
 
-    showToast(error.message || "تعذر حذف المحادثة");
+    showToast(
+      error.message ||
+      "تعذر حذف المحادثة"
+    );
   }
 }
 
@@ -1294,23 +1409,30 @@ async function deleteConversation() {
 
 function renderMessages(messages) {
 
-  const container = $("messagesInner");
+  const container =
+    $("messagesInner");
 
   if (!messages.length) {
 
     container.innerHTML = `
       <div class="welcome" id="welcome">
+
         <div class="welcome-box">
 
-          <div class="welcome-logo">AI</div>
+          <div class="welcome-logo">
+            AI
+          </div>
 
-          <h1>مرحباً بك في AI Agent Pro</h1>
+          <h1>
+            مرحباً بك في AI Agent Pro
+          </h1>
 
           <p>
             اكتب أي شيء تريد مساعدتك فيه.
           </p>
 
         </div>
+
       </div>
     `;
 
@@ -1319,35 +1441,49 @@ function renderMessages(messages) {
 
   container.innerHTML = "";
 
-  messages.forEach(message => {
+  messages.forEach(
+    message => {
 
-    addMessageToUI(
-      message.role,
-      message.content
-    );
+      addMessageToUI(
+        message.role,
+        message.content
+      );
 
-  });
+    }
+  );
 
   scrollToBottom();
 }
 
-function addMessageToUI(role, content) {
+function addMessageToUI(
+  role,
+  content
+) {
 
-  const container = $("messagesInner");
+  const container =
+    $("messagesInner");
 
-  const welcome = $("welcome");
+  const welcome =
+    $("welcome");
 
   if (welcome) {
     welcome.remove();
   }
 
-  const message = document.createElement("div");
+  const message =
+    document.createElement("div");
 
   message.className =
-    `message ${role === "user" ? "user" : "assistant"}`;
+    `message ${
+      role === "user"
+        ? "user"
+        : "assistant"
+    }`;
 
   const avatar =
-    role === "user" ? "U" : "AI";
+    role === "user"
+      ? "U"
+      : "AI";
 
   const name =
     role === "user"
@@ -1355,7 +1491,10 @@ function addMessageToUI(role, content) {
       : "AI Agent Pro";
 
   message.innerHTML = `
-    <div class="msg-avatar">${avatar}</div>
+
+    <div class="msg-avatar">
+      ${avatar}
+    </div>
 
     <div class="msg-body">
 
@@ -1368,18 +1507,26 @@ function addMessageToUI(role, content) {
     </div>
   `;
 
-  message.querySelector(".msg-content").textContent =
+  message.querySelector(
+    ".msg-content"
+  ).textContent =
     content || "";
 
-  container.appendChild(message);
+  container.appendChild(
+    message
+  );
 }
 
 function scrollToBottom() {
 
-  const box = $("messages");
+  const box =
+    $("messages");
 
   setTimeout(() => {
-    box.scrollTop = box.scrollHeight;
+
+    box.scrollTop =
+      box.scrollHeight;
+
   }, 20);
 }
 
@@ -1387,50 +1534,71 @@ function scrollToBottom() {
 
 async function sendMessage() {
 
-  if (isSending) return;
+  if (isSending)
+    return;
 
-  const input = $("messageInput");
+  const input =
+    $("messageInput");
 
-  const message = input.value.trim();
+  const message =
+    input.value.trim();
 
-  if (!message) return;
+  if (!message)
+    return;
 
   if (!currentConversationId) {
+
     await createConversation();
   }
 
   if (!currentConversationId) {
-    showToast("تعذر إنشاء المحادثة");
+
+    showToast(
+      "تعذر إنشاء المحادثة"
+    );
+
     return;
   }
 
   isSending = true;
 
-  $("sendButton").disabled = true;
+  $("sendButton")
+    .disabled = true;
 
   input.value = "";
 
   resizeTextarea();
 
-  addMessageToUI("user", message);
+  addMessageToUI(
+    "user",
+    message
+  );
 
   scrollToBottom();
 
-  $("typing").classList.add("show");
+  $("typing")
+    .classList.add("show");
 
   try {
 
-    const data = await api("/api/chat", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        conversationId: currentConversationId
-      })
-    });
+    const data =
+      await api(
+        "/api/chat",
+        {
+          method: "POST",
+
+          body: JSON.stringify({
+            message,
+            conversationId:
+              currentConversationId
+          })
+        }
+      );
 
     addMessageToUI(
       "assistant",
-      data.reply || "لم يصل رد."
+      data.reply ||
+      "لم يصل رد."
     );
 
     if (data.conversationId) {
@@ -1446,7 +1614,8 @@ async function sendMessage() {
 
     if (data.conversationTitle) {
 
-      $("chatTitle").textContent =
+      $("chatTitle")
+        .textContent =
         data.conversationTitle;
     }
 
@@ -1458,7 +1627,8 @@ async function sendMessage() {
 
     addMessageToUI(
       "assistant",
-      "حدث خطأ: " + (
+      "حدث خطأ: " +
+      (
         error.message ||
         "تعذر إرسال الرسالة"
       )
@@ -1470,9 +1640,11 @@ async function sendMessage() {
 
     isSending = false;
 
-    $("sendButton").disabled = false;
+    $("sendButton")
+      .disabled = false;
 
-    $("typing").classList.remove("show");
+    $("typing")
+      .classList.remove("show");
 
     input.focus();
   }
@@ -1483,68 +1655,93 @@ async function refreshConversationList() {
   try {
 
     const data =
-      await api("/api/conversations");
+      await api(
+        "/api/conversations"
+      );
 
     conversations =
       Array.isArray(data)
         ? data
-        : (data.conversations || []);
+        : (
+          data.conversations ||
+          []
+        );
 
     renderConversationList();
 
   } catch (_) {}
 }
 
-$("composer").addEventListener(
-  "submit",
-  event => {
-    event.preventDefault();
-    sendMessage();
-  }
-);
+$("composer")
+  .addEventListener(
+    "submit",
+    event => {
+
+      event.preventDefault();
+
+      sendMessage();
+
+    }
+  );
 
 /* TEXTAREA */
 
 function resizeTextarea() {
 
-  const textarea = $("messageInput");
-
-  textarea.style.height = "auto";
+  const textarea =
+    $("messageInput");
 
   textarea.style.height =
-    Math.min(textarea.scrollHeight, 150) + "px";
+    "auto";
+
+  textarea.style.height =
+    Math.min(
+      textarea.scrollHeight,
+      150
+    ) + "px";
 }
 
-$("messageInput").addEventListener(
-  "input",
-  resizeTextarea
-);
+$("messageInput")
+  .addEventListener(
+    "input",
+    resizeTextarea
+  );
 
-$("messageInput").addEventListener(
-  "keydown",
-  event => {
+$("messageInput")
+  .addEventListener(
+    "keydown",
+    event => {
 
-    if (
-      event.key === "Enter" &&
-      !event.shiftKey &&
-      window.innerWidth > 600
-    ) {
-      event.preventDefault();
-      sendMessage();
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        window.innerWidth > 600
+      ) {
+
+        event.preventDefault();
+
+        sendMessage();
+      }
+
     }
+  );
 
-  }
-);
-
-/* MOBILE SIDEBAR */
+/* MOBILE */
 
 function toggleSidebar() {
-  $("sidebar").classList.toggle("open");
+
+  $("sidebar")
+    .classList.toggle("open");
 }
 
 function closeSidebar() {
-  if (window.innerWidth <= 720) {
-    $("sidebar").classList.remove("open");
+
+  if (
+    window.innerWidth <= 720
+  ) {
+
+    $("sidebar")
+      .classList.remove("open");
   }
 }
 
@@ -1552,35 +1749,50 @@ function closeSidebar() {
 
 async function logout() {
 
-  if (!confirm("هل تريد تسجيل الخروج؟")) {
+  if (
+    !confirm(
+      "هل تريد تسجيل الخروج؟"
+    )
+  ) {
     return;
   }
 
   try {
 
-    await api("/api/logout", {
-      method: "POST"
-    });
+    await api(
+      "/api/logout",
+      {
+        method: "POST"
+      }
+    );
 
   } catch (_) {}
 
-  location.href = "/login.html";
+  location.href =
+    "/login.html";
 }
 
 /* START */
 
 async function startApp() {
 
-  await loadUser();
+  const loggedIn =
+    await loadUser();
+
+  if (!loggedIn)
+    return;
 
   await loadConversations();
 
   setTimeout(() => {
+
     $("messageInput").focus();
+
   }, 250);
 }
 
 startApp();
+
 </script>
 
 </body>
