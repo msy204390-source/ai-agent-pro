@@ -1,579 +1,759 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Agent Pro</title>
-
-  <style>
-    *{box-sizing:border-box}
-
-    :root{
-      --bg:#0b1020;
-      --panel:#11182b;
-      --panel2:#151e35;
-      --border:rgba(255,255,255,.08);
-      --text:#f5f7ff;
-      --muted:#9ca8c7;
-      --accent:#7c5cff;
-      --accent2:#5b8cff;
-      --danger:#ff5571;
-      --success:#27d69b;
-    }
-
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      height:100vh;
-      overflow:hidden;
-    }
-
-    button,input,textarea{
-      font:inherit;
-    }
-
-    button{
-      cursor:pointer;
-    }
-
-    .app{
-      height:100vh;
-      display:flex;
-    }
-
-    /* SIDEBAR */
-    .sidebar{
-      width:290px;
-      background:#0d1426;
-      border-left:1px solid var(--border);
-      display:flex;
-      flex-direction:column;
-      transition:.25s;
-      z-index:20;
-    }
-
-    .brand{
-      padding:20px;
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-
-    .logo{
-      width:42px;
-      height:42px;
-      border-radius:13px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:bold;
-      font-size:18px;
-      box-shadow:0 8px 25px rgba(92,80,255,.3);
-    }
-
-    .brand-text strong{
-      display:block;
-      font-size:16px;
-    }
-
-    .brand-text span{
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .new-chat{
-      margin:15px;
-      padding:13px;
-      border:1px solid rgba(124,92,255,.5);
-      background:rgba(124,92,255,.12);
-      color:white;
-      border-radius:12px;
-      font-weight:bold;
-    }
-
-    .new-chat:hover{
-      background:rgba(124,92,255,.22);
-    }
-
-    .side-title{
-      padding:0 16px 8px;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .conversations{
-      flex:1;
-      overflow-y:auto;
-      padding:0 10px 10px;
-    }
-
-    .conversation{
-      padding:12px;
-      margin-bottom:5px;
-      border-radius:10px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      color:#dfe5f7;
-      transition:.15s;
-    }
-
-    .conversation:hover{
-      background:rgba(255,255,255,.05);
-    }
-
-    .conversation.active{
-      background:rgba(124,92,255,.16);
-    }
-
-    .conversation-name{
-      flex:1;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-      font-size:14px;
-    }
-
-    .conversation-menu{
-      opacity:0;
-      background:none;
-      border:0;
-      color:#aab4d0;
-      padding:4px;
-    }
-
-    .conversation:hover .conversation-menu{
-      opacity:1;
-    }
-
-    .bottom-side{
-      border-top:1px solid var(--border);
-      padding:12px;
-    }
-
-    .user-card{
-      padding:12px;
-      background:rgba(255,255,255,.04);
-      border-radius:12px;
-      margin-bottom:8px;
-    }
-
-    .user-name{
-      font-weight:bold;
-      font-size:14px;
-    }
-
-    .user-email{
-      color:var(--muted);
-      font-size:11px;
-      margin-top:4px;
-      direction:ltr;
-      text-align:right;
-    }
-
-    .logout{
-      width:100%;
-      border:0;
-      background:transparent;
-      color:#ff8ca0;
-      padding:10px;
-      border-radius:9px;
-    }
-
-    .logout:hover{
-      background:rgba(255,85,113,.08);
-    }
-
-    /* MAIN */
-    .main{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-      position:relative;
-    }
-
-    .topbar{
-      height:70px;
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 20px;
-      background:rgba(11,16,32,.9);
-    }
-
-    .menu-btn{
-      display:none;
-      background:none;
-      border:0;
-      color:white;
-      font-size:22px;
-    }
-
-    .chat-title{
-      font-weight:bold;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-      max-width:55%;
-    }
-
-    .status{
-      font-size:12px;
-      color:var(--success);
-    }
-
-    /* CHAT */
-    .chat{
-      flex:1;
-      overflow-y:auto;
-      padding:30px 15px 130px;
-    }
-
-    .messages{
-      max-width:900px;
-      margin:auto;
-    }
-
-    .welcome{
-      text-align:center;
-      padding:60px 20px 30px;
-    }
-
-    .welcome-logo{
-      width:70px;
-      height:70px;
-      margin:0 auto 20px;
-      border-radius:22px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:28px;
-      font-weight:bold;
-    }
-
-    .welcome h1{
-      margin:0 0 10px;
-      font-size:28px;
-    }
-
-    .welcome p{
-      color:var(--muted);
-      margin:0;
-    }
-
-    .message{
-      display:flex;
-      gap:12px;
-      margin-bottom:22px;
-    }
-
-    .message.user{
-      flex-direction:row-reverse;
-    }
-
-    .avatar{
-      width:34px;
-      height:34px;
-      min-width:34px;
-      border-radius:10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#202b49;
-      font-size:13px;
-      font-weight:bold;
-    }
-
-    .message.user .avatar{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-    }
-
-    .bubble{
-      max-width:min(75%,700px);
-      padding:13px 15px;
-      border-radius:15px;
-      background:var(--panel);
-      border:1px solid var(--border);
-      line-height:1.75;
-      white-space:pre-wrap;
-      word-break:break-word;
-    }
-
-    .message.user .bubble{
-      background:#1b2540;
-    }
-
-    /* INPUT */
-    .composer-wrap{
-      position:absolute;
-      bottom:0;
-      right:0;
-      left:0;
-      padding:15px;
-      background:linear-gradient(transparent,var(--bg) 25%);
-    }
-
-    .composer{
-      max-width:900px;
-      margin:auto;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:17px;
-      display:flex;
-      align-items:flex-end;
-      padding:8px;
-      box-shadow:0 -10px 35px rgba(0,0,0,.25);
-    }
-
-    textarea{
-      flex:1;
-      resize:none;
-      border:0;
-      outline:0;
-      background:transparent;
-      color:white;
-      padding:11px;
-      max-height:140px;
-      min-height:45px;
-    }
-
-    textarea::placeholder{
-      color:#74809d;
-    }
-
-    .send{
-      width:44px;
-      height:44px;
-      border:0;
-      border-radius:12px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:white;
-      font-size:18px;
-    }
-
-    .send:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-    }
-
-    .typing{
-      color:var(--muted);
-      font-size:13px;
-      margin:0 0 15px 47px;
-      display:none;
-    }
-
-    /* MODAL */
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.65);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:100;
-      padding:20px;
-    }
-
-    .modal{
-      width:min(420px,100%);
-      background:#121a2d;
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:20px;
-    }
-
-    .modal h3{
-      margin-top:0;
-    }
-
-    .modal input{
-      width:100%;
-      padding:13px;
-      border-radius:10px;
-      border:1px solid var(--border);
-      background:#0c1324;
-      color:white;
-      outline:none;
-    }
-
-    .modal-actions{
-      display:flex;
-      gap:8px;
-      margin-top:15px;
-    }
-
-    .modal-actions button{
-      flex:1;
-      padding:11px;
-      border-radius:10px;
-      border:0;
-    }
-
-    .confirm{
-      background:var(--accent);
-      color:white;
-    }
-
-    .cancel{
-      background:#222c45;
-      color:white;
-    }
-
-    /* TOAST */
-    .toast{
-      position:fixed;
-      bottom:25px;
-      left:50%;
-      transform:translateX(-50%) translateY(100px);
-      background:#1c2740;
-      border:1px solid var(--border);
-      padding:12px 18px;
-      border-radius:12px;
-      opacity:0;
-      transition:.25s;
-      z-index:200;
-      max-width:90%;
-      text-align:center;
-    }
-
-    .toast.show{
-      transform:translateX(-50%) translateY(0);
-      opacity:1;
-    }
-
-    /* MOBILE */
-    @media(max-width:750px){
-
-      .sidebar{
-        position:fixed;
-        top:0;
-        bottom:0;
-        right:0;
-        transform:translateX(100%);
-        box-shadow:-15px 0 40px rgba(0,0,0,.4);
-      }
-
-      .sidebar.open{
-        transform:translateX(0);
-      }
-
-      .menu-btn{
-        display:block;
-      }
-
-      .topbar{
-        padding:0 12px;
-      }
-
-      .chat-title{
-        max-width:50%;
-        font-size:14px;
-      }
-
-      .status{
-        display:none;
-      }
-
-      .bubble{
-        max-width:85%;
-      }
-
-      .welcome{
-        padding-top:45px;
-      }
-
-      .welcome h1{
-        font-size:23px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b14">
+<title>AI Agent Pro</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#070b14;
+  --panel:#0d1320;
+  --panel2:#111a2a;
+  --border:rgba(255,255,255,.08);
+  --text:#f4f7fb;
+  --muted:#8c98aa;
+  --accent:#7c5cff;
+  --accent2:#5ee7ff;
+  --danger:#ff5577;
+  --user:#18243a;
+}
+
+body{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  overflow:hidden;
+}
+
+button,textarea{font:inherit}
+
+.app{
+  display:flex;
+  width:100%;
+  height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:290px;
+  flex-shrink:0;
+  background:rgba(13,19,32,.97);
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  padding:16px;
+  z-index:20;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:18px;
+}
+
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  font-size:17px;
+  color:white;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 8px 28px rgba(124,92,255,.28);
+}
+
+.brand-text strong{
+  display:block;
+  font-size:16px;
+}
+
+.brand-text span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.new-chat{
+  border:0;
+  width:100%;
+  padding:13px 14px;
+  border-radius:13px;
+  color:white;
+  font-weight:800;
+  cursor:pointer;
+  background:linear-gradient(135deg,#7c5cff,#6848e9);
+  box-shadow:0 8px 22px rgba(124,92,255,.2);
+  margin-bottom:16px;
+}
+
+.new-chat:active{transform:scale(.98)}
+
+.section-title{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  margin:3px 4px 9px;
+}
+
+.conversations{
+  flex:1;
+  overflow-y:auto;
+  padding-left:2px;
+}
+
+.conversation{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  padding:11px 10px;
+  margin-bottom:5px;
+  border-radius:11px;
+  cursor:pointer;
+  color:#cbd3df;
+  transition:.18s;
+}
+
+.conversation:hover{
+  background:rgba(255,255,255,.05);
+}
+
+.conversation.active{
+  background:rgba(124,92,255,.14);
+  color:white;
+}
+
+.conv-icon{
+  width:27px;
+  height:27px;
+  flex-shrink:0;
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.05);
+  font-size:13px;
+}
+
+.conv-name{
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:13px;
+}
+
+.conv-more{
+  border:0;
+  background:transparent;
+  color:#758196;
+  width:25px;
+  height:25px;
+  border-radius:7px;
+  cursor:pointer;
+}
+
+.conv-more:hover{
+  background:rgba(255,255,255,.08);
+  color:white;
+}
+
+.empty{
+  color:#697588;
+  text-align:center;
+  padding:28px 8px;
+  font-size:12px;
+}
+
+.user-card{
+  border-top:1px solid var(--border);
+  padding-top:13px;
+  margin-top:10px;
+}
+
+.user-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.avatar{
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#202b40;
+  font-weight:800;
+  font-size:13px;
+}
+
+.user-info{
+  min-width:0;
+  flex:1;
+}
+
+.user-info strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:12px;
+}
+
+.user-info span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.logout{
+  border:0;
+  background:transparent;
+  color:#8b95a5;
+  cursor:pointer;
+  padding:8px;
+  border-radius:8px;
+}
+
+.logout:hover{
+  color:#ff6a88;
+  background:rgba(255,255,255,.05);
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.topbar{
+  height:64px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 22px;
+  border-bottom:1px solid var(--border);
+  background:rgba(7,11,20,.82);
+  backdrop-filter:blur(15px);
+}
+
+.top-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.mobile-menu{
+  display:none;
+  border:0;
+  background:transparent;
+  color:white;
+  font-size:21px;
+  cursor:pointer;
+}
+
+.chat-title{
+  font-weight:800;
+  font-size:14px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#8d99ab;
+  font-size:10px;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#36d98b;
+  box-shadow:0 0 10px rgba(54,217,139,.7);
+}
+
+/* MESSAGES */
+.messages{
+  flex:1;
+  overflow-y:auto;
+  padding:28px 18px 20px;
+  scroll-behavior:smooth;
+}
+
+.messages-inner{
+  width:min(850px,100%);
+  margin:auto;
+}
+
+.welcome{
+  min-height:55vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.welcome-box{
+  max-width:520px;
+}
+
+.welcome-logo{
+  width:65px;
+  height:65px;
+  border-radius:21px;
+  margin:0 auto 18px;
+  display:grid;
+  place-items:center;
+  font-size:25px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 15px 45px rgba(124,92,255,.25);
+}
+
+.welcome h1{
+  font-size:27px;
+  margin-bottom:9px;
+}
+
+.welcome p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.8;
+}
+
+.message{
+  display:flex;
+  gap:11px;
+  margin-bottom:23px;
+  animation:appear .2s ease;
+}
+
+@keyframes appear{
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:none}
+}
+
+.message.user{
+  flex-direction:row-reverse;
+}
+
+.msg-avatar{
+  width:32px;
+  height:32px;
+  flex-shrink:0;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  font-size:11px;
+  font-weight:900;
+}
+
+.message.assistant .msg-avatar{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+}
+
+.message.user .msg-avatar{
+  background:#24314a;
+}
+
+.msg-body{
+  max-width:min(720px,82%);
+}
+
+.msg-name{
+  font-size:10px;
+  color:#7f8ba0;
+  margin-bottom:5px;
+}
+
+.message.user .msg-name{
+  text-align:right;
+}
+
+.msg-content{
+  line-height:1.8;
+  font-size:14px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.message.user .msg-content{
+  background:var(--user);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:15px 5px 15px 15px;
+  padding:11px 14px;
+}
+
+.message.assistant .msg-content{
+  padding-top:1px;
+}
+
+/* TYPING */
+.typing{
+  display:none;
+  gap:5px;
+  align-items:center;
+  margin:0 auto 15px;
+  width:min(850px,100%);
+  color:#7f8ba0;
+  font-size:11px;
+}
+
+.typing.show{display:flex}
+
+.typing span{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#77849a;
+  animation:bounce 1s infinite;
+}
+
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+
+@keyframes bounce{
+  0%,60%,100%{transform:translateY(0);opacity:.4}
+  30%{transform:translateY(-4px);opacity:1}
+}
+
+/* COMPOSER */
+.composer-wrap{
+  padding:10px 18px 18px;
+}
+
+.composer{
+  width:min(850px,100%);
+  margin:auto;
+  border:1px solid rgba(255,255,255,.1);
+  background:#0e1625;
+  border-radius:17px;
+  display:flex;
+  align-items:flex-end;
+  padding:9px;
+  box-shadow:0 15px 45px rgba(0,0,0,.18);
+}
+
+.composer textarea{
+  flex:1;
+  min-width:0;
+  max-height:150px;
+  min-height:42px;
+  resize:none;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:white;
+  padding:10px 11px;
+  line-height:1.6;
+  font-size:14px;
+}
+
+.composer textarea::placeholder{
+  color:#667388;
+}
+
+.send{
+  width:42px;
+  height:42px;
+  flex-shrink:0;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#6345dd);
+  color:white;
+  cursor:pointer;
+  font-size:17px;
+  font-weight:900;
+}
+
+.send:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.hint{
+  width:min(850px,100%);
+  margin:7px auto 0;
+  text-align:center;
+  color:#586477;
+  font-size:9px;
+}
+
+/* MODAL */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(5px);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.overlay.show{display:flex}
+
+.modal{
+  width:min(390px,100%);
+  background:#111927;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 25px 80px rgba(0,0,0,.45);
+}
+
+.modal h3{
+  font-size:16px;
+  margin-bottom:13px;
+}
+
+.modal input{
+  width:100%;
+  border:1px solid var(--border);
+  outline:0;
+  background:#0a101c;
+  color:white;
+  padding:12px;
+  border-radius:10px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:13px;
+}
+
+.modal-actions button{
+  flex:1;
+  border:0;
+  border-radius:10px;
+  padding:11px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.cancel{
+  background:#202a3a;
+  color:#dce3ee;
+}
+
+.confirm{
+  background:var(--accent);
+  color:white;
+}
+
+/* CONTEXT MENU */
+.menu{
+  display:none;
+  position:fixed;
+  z-index:150;
+  width:170px;
+  background:#121b2b;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:5px;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);
+}
+
+.menu.show{display:block}
+
+.menu button{
+  width:100%;
+  text-align:right;
+  border:0;
+  background:transparent;
+  color:#dce3ee;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.menu button:hover{
+  background:rgba(255,255,255,.06);
+}
+
+.menu .danger{
+  color:#ff6685;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  z-index:300;
+  background:#182235;
+  color:white;
+  border:1px solid var(--border);
+  padding:10px 15px;
+  border-radius:10px;
+  font-size:12px;
+  transition:.25s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* MOBILE */
+@media(max-width:720px){
+  .sidebar{
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    transform:translateX(105%);
+    transition:.25s;
+    box-shadow:-20px 0 50px rgba(0,0,0,.3);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .mobile-menu{
+    display:block;
+  }
+
+  .topbar{
+    height:58px;
+    padding:0 12px;
+  }
+
+  .messages{
+    padding:18px 11px 12px;
+  }
+
+  .composer-wrap{
+    padding:7px 10px 12px;
+  }
+
+  .composer{
+    border-radius:15px;
+  }
+
+  .hint{display:none}
+
+  .welcome h1{
+    font-size:23px;
+  }
+
+  .msg-body{
+    max-width:86%;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
 
     <div class="brand">
       <div class="logo">AI</div>
       <div class="brand-text">
         <strong>AI Agent Pro</strong>
-        <span>مساعدك الذكي</span>
+        <span>Smart AI Workspace</span>
       </div>
     </div>
 
-    <button class="new-chat" id="newChatBtn">
+    <button class="new-chat" onclick="createConversation()">
       ＋ محادثة جديدة
     </button>
 
-    <div class="side-title">محادثاتك</div>
+    <div class="section-title">محادثاتك</div>
 
-    <div class="conversations" id="conversationList"></div>
-
-    <div class="bottom-side">
-
-      <div class="user-card">
-        <div class="user-name" id="userName">...</div>
-        <div class="user-email" id="userEmail">...</div>
-      </div>
-
-      <button class="logout" id="logoutBtn">
-        تسجيل الخروج
-      </button>
-
+    <div class="conversations" id="conversationList">
+      <div class="empty">جاري تحميل المحادثات...</div>
     </div>
+
+    <div class="user-card">
+      <div class="user-row">
+        <div class="avatar" id="avatar">U</div>
+
+        <div class="user-info">
+          <strong id="userName">المستخدم</strong>
+          <span id="userPlan">AI Agent Pro</span>
+        </div>
+
+        <button class="logout" onclick="logout()" title="تسجيل الخروج">
+          ⎋
+        </button>
+      </div>
+    </div>
+
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
 
     <header class="topbar">
 
-      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="top-left">
+        <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
 
-      <div class="chat-title" id="chatTitle">
-        محادثة جديدة
-      </div>
+        <div>
+          <div class="chat-title" id="chatTitle">محادثة جديدة</div>
 
-      <div class="status">
-        ● متصل
+          <div class="status">
+            <span class="status-dot"></span>
+            متصل
+          </div>
+        </div>
       </div>
 
     </header>
 
-    <section class="chat" id="chat">
-
-      <div class="messages" id="messages">
+    <section class="messages" id="messages">
+      <div class="messages-inner" id="messagesInner">
 
         <div class="welcome" id="welcome">
+          <div class="welcome-box">
 
-          <div class="welcome-logo">AI</div>
+            <div class="welcome-logo">AI</div>
 
-          <h1>مرحباً بك في AI Agent Pro</h1>
+            <h1>مرحباً بك في AI Agent Pro</h1>
 
-          <p>
-            ابدأ محادثة جديدة مع وكيل الذكاء الاصطناعي الخاص بك.
-          </p>
+            <p>
+              مساعدك الذكي لإنجاز المهام، الإجابة عن الأسئلة،
+              وتحويل أفكارك إلى نتائج.
+            </p>
 
+          </div>
         </div>
 
       </div>
-
-      <div class="typing" id="typing">
-        الذكاء الاصطناعي يكتب...
-      </div>
-
     </section>
+
+    <div class="typing" id="typing">
+      <span></span>
+      <span></span>
+      <span></span>
+      <label>AI Agent Pro يفكر...</label>
+    </div>
 
     <div class="composer-wrap">
 
@@ -581,16 +761,20 @@
 
         <textarea
           id="messageInput"
-          placeholder="اكتب رسالتك هنا..."
           rows="1"
-          maxlength="3000"
+          placeholder="اكتب رسالتك هنا..."
+          autocomplete="off"
         ></textarea>
 
-        <button class="send" id="sendBtn" type="submit">
-          ➤
+        <button class="send" id="sendButton" type="submit">
+          ↑
         </button>
 
       </form>
+
+      <div class="hint">
+        AI Agent Pro قد يخطئ أحياناً، تحقق من المعلومات المهمة.
+      </div>
 
     </div>
 
@@ -599,6 +783,7 @@
 </div>
 
 <!-- RENAME MODAL -->
+
 <div class="overlay" id="renameOverlay">
 
   <div class="modal">
@@ -607,771 +792,805 @@
 
     <input
       id="renameInput"
+      type="text"
       maxlength="80"
       placeholder="اسم المحادثة"
     >
 
     <div class="modal-actions">
-      <button class="cancel" id="renameCancel">إلغاء</button>
-      <button class="confirm" id="renameConfirm">حفظ</button>
+
+      <button class="cancel" onclick="closeRename()">
+        إلغاء
+      </button>
+
+      <button class="confirm" onclick="confirmRename()">
+        حفظ
+      </button>
+
     </div>
 
   </div>
 
 </div>
 
-<!-- TOAST -->
+<!-- CONTEXT MENU -->
+
+<div class="menu" id="contextMenu">
+
+  <button onclick="renameConversation()">
+    ✏️ إعادة تسمية
+  </button>
+
+  <button class="danger" onclick="deleteConversation()">
+    🗑️ حذف المحادثة
+  </button>
+
+</div>
+
 <div class="toast" id="toast"></div>
 
-
 <script>
+let conversations = [];
+let currentConversationId = null;
+let renameTargetId = null;
+let menuTargetId = null;
+let isSending = false;
 
-  let conversations = [];
-  let currentConversationId = null;
-  let currentUser = null;
-  let renameConversationId = null;
-  let sending = false;
+const $ = id => document.getElementById(id);
 
-  const $ = id => document.getElementById(id);
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "include",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
 
-  /* ---------------- API ---------------- */
+  let data = {};
 
-  async function api(url, options = {}) {
+  try {
+    data = await response.json();
+  } catch (_) {}
 
-    const response = await fetch(url, {
-      credentials: "include",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
-      }
-    });
+  if (!response.ok) {
+    throw new Error(data.error || "حدث خطأ");
+  }
 
-    let data = {};
+  return data;
+}
 
-    try {
-      data = await response.json();
-    } catch {}
+function showToast(message) {
+  const toast = $("toast");
 
-    if (!response.ok) {
+  toast.textContent = message;
+  toast.classList.add("show");
 
-      if (response.status === 401) {
-        window.location.href = "/";
-      }
+  clearTimeout(window.toastTimer);
 
-      throw new Error(data.error || "حدث خطأ");
+  window.toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+function escapeHtml(text) {
+  return String(text ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+/* USER */
+
+async function loadUser() {
+  try {
+    const data = await api("/api/me");
+
+    const user = data.user || data;
+
+    const name =
+      user.name ||
+      user.username ||
+      user.email ||
+      "المستخدم";
+
+    $("userName").textContent = name;
+
+    $("avatar").textContent =
+      name.trim().charAt(0).toUpperCase() || "U";
+
+    if (user.plan) {
+      $("userPlan").textContent = user.plan;
     }
 
-    return data;
-  }
+  } catch (error) {
 
-
-  /* ---------------- TOAST ---------------- */
-
-  let toastTimer;
-
-  function showToast(message) {
-
-    const toast = $("toast");
-
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(toastTimer);
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2800);
-  }
-
-
-  /* ---------------- USER ---------------- */
-
-  async function loadUser() {
-
-    try {
-
-      const data = await api("/api/me");
-
-      if (!data.user) {
-        window.location.href = "/";
-        return;
-      }
-
-      currentUser = data.user;
-
-      $("userName").textContent =
-        currentUser.name || "المستخدم";
-
-      $("userEmail").textContent =
-        currentUser.email || "";
-
-    } catch (error) {
-
-      showToast(error.message);
-
+    if (error.message.includes("401") ||
+        error.message.includes("Unauthorized")) {
+      location.href = "/login.html";
     }
   }
+}
 
+/* CONVERSATIONS */
 
-  /* ---------------- CONVERSATIONS ---------------- */
+async function loadConversations() {
 
-  async function loadConversations() {
+  try {
 
     const data = await api("/api/conversations");
 
-    conversations = Array.isArray(data.conversations)
-      ? data.conversations
-      : [];
+    conversations =
+      Array.isArray(data)
+        ? data
+        : (data.conversations || []);
 
     renderConversationList();
 
     if (!conversations.length) {
-
       await createConversation();
-
       return;
     }
+
+    const saved = localStorage.getItem("currentConversationId");
 
     const exists = conversations.some(
-      c => c.id === currentConversationId
+      c => String(c.id) === String(saved)
     );
 
-    if (!exists) {
-
-      await openConversation(conversations[0].id);
-
+    if (exists) {
+      await openConversation(saved);
     } else {
-
-      await openConversation(currentConversationId);
-
+      await openConversation(conversations[0].id);
     }
+
+  } catch (error) {
+
+    showToast(error.message || "تعذر تحميل المحادثات");
+
+    $("conversationList").innerHTML =
+      '<div class="empty">تعذر تحميل المحادثات</div>';
+  }
+}
+
+function renderConversationList() {
+
+  const list = $("conversationList");
+
+  if (!conversations.length) {
+    list.innerHTML =
+      '<div class="empty">لا توجد محادثات بعد</div>';
+    return;
   }
 
+  list.innerHTML = conversations.map(c => {
 
-  function renderConversationList() {
+    const active =
+      String(c.id) === String(currentConversationId)
+        ? "active"
+        : "";
 
-    const list = $("conversationList");
+    return `
+      <div
+        class="conversation ${active}"
+        onclick="openConversation('${escapeHtml(c.id)}')"
+      >
 
-    list.innerHTML = "";
+        <div class="conv-icon">💬</div>
 
-    conversations.forEach(conversation => {
+        <div class="conv-name">
+          ${escapeHtml(c.title || "محادثة جديدة")}
+        </div>
 
-      const item = document.createElement("div");
+        <button
+          class="conv-more"
+          onclick="event.stopPropagation(); openConversationMenu(event, '${escapeHtml(c.id)}')"
+        >
+          ⋮
+        </button>
 
-      item.className =
-        "conversation" +
-        (conversation.id === currentConversationId
-          ? " active"
-          : "");
+      </div>
+    `;
 
-      const name = document.createElement("div");
+  }).join("");
+}
 
-      name.className = "conversation-name";
+async function createConversation() {
 
-      name.textContent =
-        conversation.title || "محادثة جديدة";
+  closeMenu();
 
-      const menu = document.createElement("button");
+  try {
 
-      menu.className = "conversation-menu";
-      menu.textContent = "⋮";
-      menu.title = "خيارات";
-
-      menu.addEventListener("click", event => {
-
-        event.stopPropagation();
-
-        openConversationMenu(conversation);
-
-      });
-
-      item.appendChild(name);
-      item.appendChild(menu);
-
-      item.addEventListener("click", () => {
-
-        openConversation(conversation.id);
-
-      });
-
-      list.appendChild(item);
-
+    const data = await api("/api/conversations", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "محادثة جديدة"
+      })
     });
 
-  }
+    const conversation =
+      data.conversation || data;
 
+    conversations.unshift(conversation);
 
-  async function createConversation() {
+    renderConversationList();
 
-    try {
+    await openConversation(conversation.id);
 
-      const data = await api("/api/conversations", {
-        method: "POST",
-        body: JSON.stringify({
-          title: "محادثة جديدة"
-        })
-      });
-
-      const conversation = data.conversation;
-
-      conversations.unshift(conversation);
-
-      currentConversationId = conversation.id;
-
-      renderConversationList();
-
-      renderMessages([]);
-
-      $("chatTitle").textContent =
-        conversation.title || "محادثة جديدة";
-
-      closeSidebar();
-
-      return conversation;
-
-    } catch (error) {
-
-      showToast(error.message);
-
-    }
-  }
-
-
-  async function openConversation(id) {
-
-    try {
-
-      const data = await api(
-        `/api/conversations/${encodeURIComponent(id)}`
-      );
-
-      const conversation = data.conversation;
-
-      currentConversationId = conversation.id;
-
-      $("chatTitle").textContent =
-        conversation.title || "محادثة جديدة";
-
-      renderMessages(
-        Array.isArray(conversation.messages)
-          ? conversation.messages
-          : []
-      );
-
-      renderConversationList();
-
-      closeSidebar();
-
-      scrollToBottom();
-
-    } catch (error) {
-
-      showToast(error.message);
-
-    }
-  }
-
-
-  async function renameConversation(conversation) {
-
-    renameConversationId = conversation.id;
-
-    $("renameInput").value =
-      conversation.title || "";
-
-    $("renameOverlay").style.display = "flex";
+    closeSidebar();
 
     setTimeout(() => {
+      $("messageInput").focus();
+    }, 100);
 
-      $("renameInput").focus();
-      $("renameInput").select();
-
-    }, 50);
+  } catch (error) {
+    showToast(error.message || "تعذر إنشاء المحادثة");
   }
+}
 
+async function openConversation(id) {
 
-  async function confirmRename() {
+  closeMenu();
 
-    const title =
-      $("renameInput").value.trim();
+  try {
 
-    if (!title) {
-
-      showToast("اكتبي اسم المحادثة");
-
-      return;
-    }
-
-    try {
-
-      const data = await api(
-        `/api/conversations/${encodeURIComponent(renameConversationId)}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ title })
-        }
-      );
-
-      const updated = data.conversation;
-
-      conversations =
-        conversations.map(c =>
-          c.id === updated.id ? updated : c
-        );
-
-      if (currentConversationId === updated.id) {
-
-        $("chatTitle").textContent =
-          updated.title;
-
-      }
-
-      renderConversationList();
-
-      closeRename();
-
-      showToast("تم تغيير اسم المحادثة");
-
-    } catch (error) {
-
-      showToast(error.message);
-
-    }
-  }
-
-
-  async function deleteConversation(conversation) {
-
-    const ok = confirm(
-      `حذف المحادثة "${conversation.title || "محادثة جديدة"}"؟`
+    const data = await api(
+      `/api/conversations/${encodeURIComponent(id)}`
     );
 
-    if (!ok) return;
+    const conversation =
+      data.conversation || data;
 
-    try {
+    currentConversationId = conversation.id;
 
-      await api(
-        `/api/conversations/${encodeURIComponent(conversation.id)}`,
-        {
-          method: "DELETE"
-        }
+    localStorage.setItem(
+      "currentConversationId",
+      conversation.id
+    );
+
+    $("chatTitle").textContent =
+      conversation.title || "محادثة جديدة";
+
+    renderMessages(conversation.messages || []);
+
+    renderConversationList();
+
+    closeSidebar();
+
+  } catch (error) {
+
+    showToast(error.message || "تعذر فتح المحادثة");
+  }
+}
+
+/* MENU */
+
+function openConversationMenu(event, id) {
+
+  event.preventDefault();
+
+  menuTargetId = id;
+
+  const menu = $("contextMenu");
+
+  const rect = event.currentTarget.getBoundingClientRect();
+
+  let left = rect.left - 150;
+  let top = rect.bottom + 5;
+
+  if (left < 8) left = 8;
+
+  if (top + 100 > window.innerHeight) {
+    top = rect.top - 105;
+  }
+
+  menu.style.left = left + "px";
+  menu.style.top = top + "px";
+
+  menu.classList.add("show");
+}
+
+function closeMenu() {
+  $("contextMenu").classList.remove("show");
+  menuTargetId = null;
+}
+
+document.addEventListener("click", event => {
+
+  const menu = $("contextMenu");
+
+  if (
+    menu.classList.contains("show") &&
+    !menu.contains(event.target)
+  ) {
+    closeMenu();
+  }
+
+});
+
+/* RENAME */
+
+function renameConversation() {
+
+  if (!menuTargetId) return;
+
+  renameTargetId = menuTargetId;
+
+  const conversation =
+    conversations.find(
+      c => String(c.id) === String(renameTargetId)
+    );
+
+  $("renameInput").value =
+    conversation?.title || "محادثة جديدة";
+
+  $("renameOverlay").classList.add("show");
+
+  closeMenu();
+
+  setTimeout(() => {
+    $("renameInput").focus();
+    $("renameInput").select();
+  }, 50);
+}
+
+function closeRename() {
+  $("renameOverlay").classList.remove("show");
+  renameTargetId = null;
+}
+
+async function confirmRename() {
+
+  if (!renameTargetId) return;
+
+  const title =
+    $("renameInput").value.trim();
+
+  if (!title) {
+    showToast("اكتبي اسم المحادثة أولاً");
+    return;
+  }
+
+  try {
+
+    const data = await api(
+      `/api/conversations/${encodeURIComponent(renameTargetId)}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ title })
+      }
+    );
+
+    const updated =
+      data.conversation || data;
+
+    const index =
+      conversations.findIndex(
+        c => String(c.id) === String(renameTargetId)
       );
 
-      conversations =
-        conversations.filter(
-          c => c.id !== conversation.id
+    if (index !== -1) {
+      conversations[index] = {
+        ...conversations[index],
+        ...updated,
+        title
+      };
+    }
+
+    if (
+      String(currentConversationId) ===
+      String(renameTargetId)
+    ) {
+      $("chatTitle").textContent = title;
+    }
+
+    renderConversationList();
+
+    closeRename();
+
+    showToast("تم تغيير اسم المحادثة");
+
+  } catch (error) {
+
+    showToast(error.message || "تعذر تغيير الاسم");
+  }
+}
+
+$("renameInput").addEventListener("keydown", event => {
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    confirmRename();
+  }
+
+  if (event.key === "Escape") {
+    closeRename();
+  }
+
+});
+
+/* DELETE */
+
+async function deleteConversation() {
+
+  if (!menuTargetId) return;
+
+  const id = menuTargetId;
+
+  closeMenu();
+
+  const conversation =
+    conversations.find(
+      c => String(c.id) === String(id)
+    );
+
+  const title =
+    conversation?.title || "هذه المحادثة";
+
+  if (!confirm(`حذف "${title}"؟`)) return;
+
+  try {
+
+    const data = await api(
+      `/api/conversations/${encodeURIComponent(id)}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    conversations =
+      conversations.filter(
+        c => String(c.id) !== String(id)
+      );
+
+    if (String(currentConversationId) === String(id)) {
+
+      const remaining =
+        conversations[0] ||
+        data.conversation ||
+        data;
+
+      if (remaining?.id) {
+
+        conversations.unshift(
+          ...(
+            conversations.some(
+              c => String(c.id) === String(remaining.id)
+            )
+              ? []
+              : [remaining]
+          )
         );
 
-      if (currentConversationId === conversation.id) {
-
-        currentConversationId = null;
-
-        if (conversations.length) {
-
-          await openConversation(
-            conversations[0].id
-          );
-
-        } else {
-
-          await createConversation();
-
-        }
+        await openConversation(remaining.id);
 
       } else {
 
-        renderConversationList();
+        currentConversationId = null;
+
+        localStorage.removeItem(
+          "currentConversationId"
+        );
+
+        renderMessages([]);
 
       }
-
-      showToast("تم حذف المحادثة");
-
-    } catch (error) {
-
-      showToast(error.message);
-
-    }
-  }
-
-
-  function openConversationMenu(conversation) {
-
-    const action =
-      prompt(
-        "اكتبي:\n1 = إعادة تسمية\n2 = حذف"
-      );
-
-    if (action === "1") {
-
-      renameConversation(conversation);
-
-    } else if (action === "2") {
-
-      deleteConversation(conversation);
-
     }
 
+    renderConversationList();
+
+    showToast("تم حذف المحادثة");
+
+  } catch (error) {
+
+    showToast(error.message || "تعذر حذف المحادثة");
   }
+}
 
+/* MESSAGES */
 
-  /* ---------------- MESSAGES ---------------- */
+function renderMessages(messages) {
 
-  function renderMessages(messages) {
+  const container = $("messagesInner");
 
-    const container = $("messages");
+  if (!messages.length) {
 
-    container.innerHTML = "";
+    container.innerHTML = `
+      <div class="welcome" id="welcome">
+        <div class="welcome-box">
 
-    if (!messages.length) {
-
-      container.innerHTML = `
-        <div class="welcome" id="welcome">
           <div class="welcome-logo">AI</div>
-          <h1>ابدئي محادثة جديدة</h1>
-          <p>اكتبي أول رسالة للوكيل الذكي.</p>
+
+          <h1>مرحباً بك في AI Agent Pro</h1>
+
+          <p>
+            اكتب أي شيء تريد مساعدتك فيه.
+          </p>
+
         </div>
-      `;
+      </div>
+    `;
 
-      return;
-    }
+    return;
+  }
 
-    messages.forEach(message => {
+  container.innerHTML = "";
 
-      addMessageToUI(
-        message.role,
-        message.content
-      );
+  messages.forEach(message => {
 
+    addMessageToUI(
+      message.role,
+      message.content
+    );
+
+  });
+
+  scrollToBottom();
+}
+
+function addMessageToUI(role, content) {
+
+  const container = $("messagesInner");
+
+  const welcome = $("welcome");
+
+  if (welcome) {
+    welcome.remove();
+  }
+
+  const message = document.createElement("div");
+
+  message.className =
+    `message ${role === "user" ? "user" : "assistant"}`;
+
+  const avatar =
+    role === "user" ? "U" : "AI";
+
+  const name =
+    role === "user"
+      ? "أنت"
+      : "AI Agent Pro";
+
+  message.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+
+    <div class="msg-body">
+
+      <div class="msg-name">
+        ${name}
+      </div>
+
+      <div class="msg-content"></div>
+
+    </div>
+  `;
+
+  message.querySelector(".msg-content").textContent =
+    content || "";
+
+  container.appendChild(message);
+}
+
+function scrollToBottom() {
+
+  const box = $("messages");
+
+  setTimeout(() => {
+    box.scrollTop = box.scrollHeight;
+  }, 20);
+}
+
+/* SEND */
+
+async function sendMessage() {
+
+  if (isSending) return;
+
+  const input = $("messageInput");
+
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  if (!currentConversationId) {
+    await createConversation();
+  }
+
+  if (!currentConversationId) {
+    showToast("تعذر إنشاء المحادثة");
+    return;
+  }
+
+  isSending = true;
+
+  $("sendButton").disabled = true;
+
+  input.value = "";
+
+  resizeTextarea();
+
+  addMessageToUI("user", message);
+
+  scrollToBottom();
+
+  $("typing").classList.add("show");
+
+  try {
+
+    const data = await api("/api/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        message,
+        conversationId: currentConversationId
+      })
     });
 
-  }
+    addMessageToUI(
+      "assistant",
+      data.reply || "لم يصل رد."
+    );
 
+    if (data.conversationId) {
 
-  function addMessageToUI(role, content) {
+      currentConversationId =
+        data.conversationId;
 
-    const container = $("messages");
+      localStorage.setItem(
+        "currentConversationId",
+        currentConversationId
+      );
+    }
 
-    const wrapper =
-      document.createElement("div");
+    if (data.conversationTitle) {
 
-    wrapper.className =
-      "message " +
-      (role === "user" ? "user" : "assistant");
+      $("chatTitle").textContent =
+        data.conversationTitle;
+    }
 
-    const avatar =
-      document.createElement("div");
-
-    avatar.className = "avatar";
-
-    avatar.textContent =
-      role === "user" ? "أنت" : "AI";
-
-    const bubble =
-      document.createElement("div");
-
-    bubble.className = "bubble";
-
-    bubble.textContent = content;
-
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(bubble);
-
-    container.appendChild(wrapper);
-
-  }
-
-
-  /* ---------------- CHAT ---------------- */
-
-  async function sendMessage(message) {
-
-    if (sending) return;
-
-    if (!message.trim()) return;
-
-    sending = true;
-
-    $("sendBtn").disabled = true;
-
-    $("typing").style.display = "block";
-
-    addMessageToUI("user", message);
-
-    $("messageInput").value = "";
-
-    autoResize();
+    await refreshConversationList();
 
     scrollToBottom();
 
-    try {
+  } catch (error) {
 
-      const data = await api("/api/chat", {
-        method: "POST",
-        body: JSON.stringify({
-          message,
-          conversationId: currentConversationId
-        })
-      });
+    addMessageToUI(
+      "assistant",
+      "حدث خطأ: " + (
+        error.message ||
+        "تعذر إرسال الرسالة"
+      )
+    );
 
-      if (data.conversationId) {
+    scrollToBottom();
 
-        currentConversationId =
-          data.conversationId;
+  } finally {
 
-      }
+    isSending = false;
 
-      addMessageToUI(
-        "assistant",
-        data.reply || "لم يصل رد."
-      );
+    $("sendButton").disabled = false;
 
-      if (data.conversationTitle) {
+    $("typing").classList.remove("show");
 
-        $("chatTitle").textContent =
-          data.conversationTitle;
-
-      }
-
-      /*
-       * تحديث القائمة من الخادم حتى يظهر
-       * العنوان الجديد وترتيب المحادثة.
-       */
-      try {
-
-        const list =
-          await api("/api/conversations");
-
-        conversations =
-          list.conversations || [];
-
-        renderConversationList();
-
-      } catch {}
-
-      scrollToBottom();
-
-    } catch (error) {
-
-      addMessageToUI(
-        "assistant",
-        "⚠️ " + error.message
-      );
-
-    } finally {
-
-      sending = false;
-
-      $("sendBtn").disabled = false;
-
-      $("typing").style.display = "none";
-
-      $("messageInput").focus();
-
-    }
+    input.focus();
   }
+}
 
+async function refreshConversationList() {
 
-  /* ---------------- UI ---------------- */
+  try {
 
-  function scrollToBottom() {
+    const data =
+      await api("/api/conversations");
 
-    const chat = $("chat");
+    conversations =
+      Array.isArray(data)
+        ? data
+        : (data.conversations || []);
 
-    setTimeout(() => {
+    renderConversationList();
 
-      chat.scrollTop = chat.scrollHeight;
+  } catch (_) {}
+}
 
-    }, 50);
-
+$("composer").addEventListener(
+  "submit",
+  event => {
+    event.preventDefault();
+    sendMessage();
   }
+);
 
+/* TEXTAREA */
 
-  function autoResize() {
+function resizeTextarea() {
 
-    const textarea = $("messageInput");
+  const textarea = $("messageInput");
 
-    textarea.style.height = "auto";
+  textarea.style.height = "auto";
 
-    textarea.style.height =
-      Math.min(textarea.scrollHeight, 140) + "px";
+  textarea.style.height =
+    Math.min(textarea.scrollHeight, 150) + "px";
+}
 
-  }
+$("messageInput").addEventListener(
+  "input",
+  resizeTextarea
+);
 
+$("messageInput").addEventListener(
+  "keydown",
+  event => {
 
-  function closeSidebar() {
-
-    $("sidebar").classList.remove("open");
-
-  }
-
-
-  function closeRename() {
-
-    $("renameOverlay").style.display = "none";
-
-    renameConversationId = null;
-
-  }
-
-
-  /* ---------------- EVENTS ---------------- */
-
-  $("newChatBtn").addEventListener(
-    "click",
-    async () => {
-
-      await createConversation();
-
-    }
-  );
-
-
-  $("composer").addEventListener(
-    "submit",
-    async event => {
-
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      window.innerWidth > 600
+    ) {
       event.preventDefault();
-
-      const message =
-        $("messageInput").value.trim();
-
-      if (!message) return;
-
-      await sendMessage(message);
-
-    }
-  );
-
-
-  $("messageInput").addEventListener(
-    "input",
-    autoResize
-  );
-
-
-  $("messageInput").addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key === "Enter" &&
-        !event.shiftKey
-      ) {
-
-        event.preventDefault();
-
-        $("composer").requestSubmit();
-
-      }
-
-    }
-  );
-
-
-  $("menuBtn").addEventListener(
-    "click",
-    () => {
-
-      $("sidebar").classList.toggle("open");
-
-    }
-  );
-
-
-  $("renameCancel").addEventListener(
-    "click",
-    closeRename
-  );
-
-
-  $("renameConfirm").addEventListener(
-    "click",
-    confirmRename
-  );
-
-
-  $("renameOverlay").addEventListener(
-    "click",
-    event => {
-
-      if (
-        event.target === $("renameOverlay")
-      ) {
-
-        closeRename();
-
-      }
-
-    }
-  );
-
-
-  $("renameInput").addEventListener(
-    "keydown",
-    event => {
-
-      if (event.key === "Enter") {
-
-        confirmRename();
-
-      }
-
-      if (event.key === "Escape") {
-
-        closeRename();
-
-      }
-
-    }
-  );
-
-
-  $("logoutBtn").addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        await api("/api/logout", {
-          method: "POST"
-        });
-
-      } catch {}
-
-      window.location.href = "/";
-
-    }
-  );
-
-
-  /* ---------------- START ---------------- */
-
-  async function startApp() {
-
-    try {
-
-      await loadUser();
-
-      if (!currentUser) return;
-
-      await loadConversations();
-
-    } catch (error) {
-
-      console.error(error);
-
-      showToast(
-        "تعذر تحميل التطبيق. تأكدي من تسجيل الدخول."
-      );
-
+      sendMessage();
     }
 
   }
+);
 
-  startApp();
+/* MOBILE SIDEBAR */
 
+function toggleSidebar() {
+  $("sidebar").classList.toggle("open");
+}
+
+function closeSidebar() {
+  if (window.innerWidth <= 720) {
+    $("sidebar").classList.remove("open");
+  }
+}
+
+/* LOGOUT */
+
+async function logout() {
+
+  if (!confirm("هل تريد تسجيل الخروج؟")) {
+    return;
+  }
+
+  try {
+
+    await api("/api/logout", {
+      method: "POST"
+    });
+
+  } catch (_) {}
+
+  location.href = "/login.html";
+}
+
+/* START */
+
+async function startApp() {
+
+  await loadUser();
+
+  await loadConversations();
+
+  setTimeout(() => {
+    $("messageInput").focus();
+  }, 250);
+}
+
+startApp();
 </script>
 
 </body>
 </html>
+
+بعد اللصق:
+
+GitHub → "index.html" → Commit changes → Render → Manual Deploy → Deploy latest commit.
+
+وبعد ما يخلص، افتحي:
+"https://ai-agent-pro-3wka.onrender.com/"
+
+إذا ظهر الموقع، جرّبي «محادثة جديدة» وأنشئي محادثتين، وبعدين مننتقل للمرحلة الأقوى: تحسين الـAI نفسه والواجهة لتصير أقرب لتطبيق SaaS احترافي.
