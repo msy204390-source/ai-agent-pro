@@ -859,10 +859,27 @@ async function loadUser() {
 
   try {
 
-    const data = await api("/api/me");
+    const data =
+      await api("/api/me");
+
+    /*
+      /api/me يرجع:
+      { user: null }
+      عندما لا يكون المستخدم مسجلاً.
+
+      لذلك لا يجوز اعتبار data نفسها مستخدماً.
+    */
+
+    if (!data || !data.user) {
+
+      location.href =
+        "/login.html";
+
+      return false;
+    }
 
     const user =
-      data.user || data;
+      data.user;
 
     const name =
       user.name ||
@@ -877,8 +894,15 @@ async function loadUser() {
       name.trim().charAt(0).toUpperCase() || "U";
 
     if (user.plan) {
+
       $("userPlan").textContent =
         user.plan;
+
+    } else {
+
+      $("userPlan").textContent =
+        "بدون خطة";
+
     }
 
     return true;
