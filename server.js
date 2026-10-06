@@ -8,11 +8,24 @@ import "dotenv/config";
 import OpenAI from "openai";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const IS_PROD = process.env.NODE_ENV === "production";
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
 
-fs.mkdirSync(DATA_DIR, { recursive: true });
+const IS_PROD =
+  process.env.NODE_ENV === "production";
+
+const DATA_DIR =
+  process.env.DATA_DIR ||
+  path.join(__dirname, "data");
+
+const DB_FILE =
+  path.join(DATA_DIR, "db.json");
+
+fs.mkdirSync(DATA_DIR, {
+  recursive: true
+});
+
+/* =========================
+   APP
+========================= */
 
 const app = express();
 
@@ -41,7 +54,13 @@ app.use(
   })
 );
 
-app.use(express.static(__dirname));
+app.use(
+  express.static(__dirname)
+);
+
+/* =========================
+   PLANS
+========================= */
 
 const PLANS = {
   starter: {
@@ -50,12 +69,14 @@ const PLANS = {
     days: 30,
     monthlyMessages: 250
   },
+
   business: {
     name: "Business",
     price: 79,
     days: 30,
     monthlyMessages: 1200
   },
+
   pro: {
     name: "Pro",
     price: 149,
@@ -64,8 +85,21 @@ const PLANS = {
   }
 };
 
+/* =========================
+   DATABASE
+========================= */
+
 const defaultDb = {
   users: [],
   sessions: [],
   payments: [],
- 
+  usage: [],
+  knowledge: [],
+  settings: {}
+};
+
+function loadDb() {
+  try {
+    return {
+      ...structuredClone(defaultDb),
+      ...JSON.parse(
