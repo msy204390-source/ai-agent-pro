@@ -298,8 +298,8 @@ body{
         <input
           id="signupPassword"
           type="password"
-          placeholder="6 أحرف على الأقل"
-          minlength="6"
+          placeholder="8 أحرف على الأقل"
+          minlength="8"
           autocomplete="new-password"
           required
         >
@@ -394,7 +394,7 @@ async function checkSession(){
 
     const data = await api("/api/me");
 
-    if(data.user || data){
+    if(data.user){
       location.href = "/";
     }
 
@@ -474,8 +474,8 @@ $("signupForm").addEventListener("submit",async event=>{
   const button =
     $("signupButton");
 
-  if(password.length < 6){
-    showError("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
+  if(password.length < 8){
+    showError("كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
     return;
   }
 
