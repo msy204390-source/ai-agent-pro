@@ -1,313 +1,2243 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#070b14">
-  <title>AI Agent Pro</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
 
-    :root {
-      --bg: #070b14;
-      --card: #101827;
-      --card2: #151f31;
-      --text: #f5f7ff;
-      --muted: #9aa7bd;
-      --primary: #7c5cff;
-      --primary2: #5b3fd4;
-      --border: #263247;
-      --success: #25d695;
-    }
+<!DOCTYPE html>  <html lang="ar" dir="rtl">  <head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">  
+<meta name="theme-color" content="#070b14">  <title>AI Agent Pro</title>  <style>  
+  
+*{  
+  box-sizing:border-box;  
+  margin:0;  
+  padding:0;  
+}  
+  
+:root{  
+  --bg:#070b14;  
+  --panel:#0d1320;  
+  --panel2:#111a2a;  
+  --border:rgba(255,255,255,.08);  
+  --text:#f4f7fb;  
+  --muted:#8c98aa;  
+  --accent:#7c5cff;  
+  --accent2:#5ee7ff;  
+  --danger:#ff5577;  
+  --user:#18243a;  
+  --success:#36d98b;  
+}  
+  
+body{  
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;  
+  background:var(--bg);  
+  color:var(--text);  
+  height:100vh;  
+  overflow:hidden;  
+}  
+  
+button,  
+textarea{  
+  font:inherit;  
+}  
+  
+.app{  
+  display:flex;  
+  width:100%;  
+  height:100vh;  
+}  
+  
+/* =========================  
+   SIDEBAR  
+========================= */  
+  
+.sidebar{  
+  width:290px;  
+  flex-shrink:0;  
+  background:rgba(13,19,32,.97);  
+  border-left:1px solid var(--border);  
+  display:flex;  
+  flex-direction:column;  
+  padding:16px;  
+  z-index:20;  
+}  
+  
+.brand{  
+  display:flex;  
+  align-items:center;  
+  gap:11px;  
+  margin-bottom:18px;  
+}  
+  
+.logo{  
+  width:42px;  
+  height:42px;  
+  border-radius:13px;  
+  display:grid;  
+  place-items:center;  
+  font-weight:900;  
+  font-size:17px;  
+  color:white;  
+  background:linear-gradient(  
+    135deg,  
+    var(--accent),  
+    var(--accent2)  
+  );  
+  box-shadow:0 8px 28px rgba(124,92,255,.28);  
+}  
+  
+.brand-text strong{  
+  display:block;  
+  font-size:16px;  
+}  
+  
+.brand-text span{  
+  color:var(--muted);  
+  font-size:11px;  
+}  
+  
+.new-chat{  
+  border:0;  
+  width:100%;  
+  padding:13px 14px;  
+  border-radius:13px;  
+  color:white;  
+  font-weight:800;  
+  cursor:pointer;  
+  background:linear-gradient(  
+    135deg,  
+    #7c5cff,  
+    #6848e9  
+  );  
+  box-shadow:0 8px 22px rgba(124,92,255,.2);  
+  margin-bottom:16px;  
+}  
+  
+.new-chat:active{  
+  transform:scale(.98);  
+}  
+  
+.sidebar-info{  
+  flex:1;  
+}  
+  
+.info-box{  
+  padding:15px;  
+  border-radius:14px;  
+  background:rgba(255,255,255,.025);  
+  border:1px solid var(--border);  
+}  
+  
+.info-title{  
+  font-size:12px;  
+  font-weight:800;  
+  margin-bottom:8px;  
+}  
+  
+.info-text{  
+  color:var(--muted);  
+  font-size:11px;  
+  line-height:1.8;  
+}  
+  
+.info-item{  
+  display:flex;  
+  align-items:center;  
+  gap:7px;  
+  margin-top:9px;  
+  color:#b8c2d1;  
+  font-size:11px;  
+}  
+  
+.info-dot{  
+  width:6px;  
+  height:6px;  
+  border-radius:50%;  
+  background:var(--success);  
+  box-shadow:0 0 8px rgba(54,217,139,.6);  
+}  
+  
+/* =========================  
+   USER  
+========================= */  
+  
+.user-card{  
+  border-top:1px solid var(--border);  
+  padding-top:13px;  
+  margin-top:10px;  
+}  
+  
+.user-row{  
+  display:flex;  
+  align-items:center;  
+  gap:9px;  
+}  
+  
+.avatar{  
+  width:35px;  
+  height:35px;  
+  border-radius:50%;  
+  display:grid;  
+  place-items:center;  
+  background:#202b40;  
+  font-weight:800;  
+  font-size:13px;  
+}  
+  
+.user-info{  
+  min-width:0;  
+  flex:1;  
+}  
+  
+.user-info strong{  
+  display:block;  
+  overflow:hidden;  
+  text-overflow:ellipsis;  
+  white-space:nowrap;  
+  font-size:12px;  
+}  
+  
+.user-info span{  
+  color:var(--muted);  
+  font-size:10px;  
+}  
+  
+.plan-status{  
+  display:block;  
+  margin-top:3px;  
+  font-size:10px !important;  
+  color:#aeb9c9 !important;  
+}  
+  
+.plan-status.trial{  
+  color:#bdaeff !important;  
+}  
+  
+.plan-status.paid{  
+  color:#6ee7ad !important;  
+}  
+  
+.plan-status.expired{  
+  color:#ff829c !important;  
+}  
+  
+.logout{  
+  border:0;  
+  background:transparent;  
+  color:#8b95a5;  
+  cursor:pointer;  
+  padding:8px;  
+  border-radius:8px;  
+}  
+  
+.logout:hover{  
+  color:#ff6a88;  
+  background:rgba(255,255,255,.05);  
+}  
+  
+/* =========================  
+   MAIN  
+========================= */  
+  
+.main{  
+  flex:1;  
+  min-width:0;  
+  display:flex;  
+  flex-direction:column;  
+  position:relative;  
+}  
+  
+/* =========================  
+   TOPBAR  
+========================= */  
+  
+.topbar{  
+  height:64px;  
+  flex-shrink:0;  
+  display:flex;  
+  align-items:center;  
+  justify-content:space-between;  
+  padding:0 22px;  
+  border-bottom:1px solid var(--border);  
+  background:rgba(7,11,20,.82);  
+  backdrop-filter:blur(15px);  
+}  
+  
+.top-left{  
+  display:flex;  
+  align-items:center;  
+  gap:12px;  
+  min-width:0;  
+}  
+  
+.mobile-menu{  
+  display:none;  
+  border:0;  
+  background:transparent;  
+  color:white;  
+  font-size:21px;  
+  cursor:pointer;  
+}  
+  
+.chat-title{  
+  font-weight:800;  
+  font-size:14px;  
+  overflow:hidden;  
+  white-space:nowrap;  
+  text-overflow:ellipsis;  
+}  
+  
+.status{  
+  display:flex;  
+  align-items:center;  
+  gap:6px;  
+  color:#8d99ab;  
+  font-size:10px;  
+}  
+  
+.status-dot{  
+  width:7px;  
+  height:7px;  
+  border-radius:50%;  
+  background:#36d98b;  
+  box-shadow:0 0 10px rgba(54,217,139,.7);  
+}  
+  
+/* =========================  
+   QUOTA  
+========================= */  
+  
+.quota-badge{  
+  display:flex;  
+  align-items:center;  
+  gap:7px;  
+  padding:8px 12px;  
+  border-radius:11px;  
+  border:1px solid rgba(255,255,255,.08);  
+  background:rgba(255,255,255,.035);  
+  color:#cfd7e4;  
+  font-size:11px;  
+  white-space:nowrap;  
+}  
+  
+.quota-badge.trial{  
+  border-color:rgba(124,92,255,.28);  
+  background:rgba(124,92,255,.08);  
+}  
+  
+.quota-badge.paid{  
+  border-color:rgba(54,217,139,.22);  
+  background:rgba(54,217,139,.06);  
+}  
+  
+.quota-badge.expired{  
+  border-color:rgba(255,85,119,.22);  
+  background:rgba(255,85,119,.06);  
+  color:#ff91a8;  
+}  
+  
+.quota-icon{  
+  font-size:14px;  
+}  
+  
+.quota-text{  
+  font-weight:700;  
+}  
+  
+/* =========================  
+   MESSAGES  
+========================= */  
+  
+.messages{  
+  flex:1;  
+  overflow-y:auto;  
+  padding:28px 18px 20px;  
+  scroll-behavior:smooth;  
+}  
+  
+.messages-inner{  
+  width:min(850px,100%);  
+  margin:auto;  
+}  
+  
+.welcome{  
+  min-height:55vh;  
+  display:flex;  
+  align-items:center;  
+  justify-content:center;  
+  text-align:center;  
+}  
+  
+.welcome-box{  
+  max-width:520px;  
+}  
+  
+.welcome-logo{  
+  width:65px;  
+  height:65px;  
+  border-radius:21px;  
+  margin:0 auto 18px;  
+  display:grid;  
+  place-items:center;  
+  font-size:25px;  
+  font-weight:900;  
+  background:linear-gradient(  
+    135deg,  
+    var(--accent),  
+    var(--accent2)  
+  );  
+  box-shadow:0 15px 45px rgba(124,92,255,.25);  
+}  
+  
+.welcome h1{  
+  font-size:27px;  
+  margin-bottom:9px;  
+}  
+  
+.welcome p{  
+  color:var(--muted);  
+  font-size:13px;  
+  line-height:1.8;  
+}  
+  
+.welcome-quota{  
+  display:inline-flex;  
+  align-items:center;  
+  justify-content:center;  
+  gap:7px;  
+  margin-top:17px;  
+  padding:9px 14px;  
+  border-radius:12px;  
+  background:rgba(124,92,255,.09);  
+  border:1px solid rgba(124,92,255,.22);  
+  color:#c7bcff;  
+  font-size:11px;  
+  font-weight:700;  
+}  
+  
+.message{  
+  display:flex;  
+  gap:11px;  
+  margin-bottom:23px;  
+  animation:appear .2s ease;  
+}  
+  
+@keyframes appear{  
+  
+  from{  
+    opacity:0;  
+    transform:translateY(5px);  
+  }  
+  
+  to{  
+    opacity:1;  
+    transform:none;  
+  }  
+  
+}  
+  
+.message.user{  
+  flex-direction:row-reverse;  
+}  
+  
+.msg-avatar{  
+  width:32px;  
+  height:32px;  
+  flex-shrink:0;  
+  border-radius:10px;  
+  display:grid;  
+  place-items:center;  
+  font-size:11px;  
+  font-weight:900;  
+}  
+  
+.message.assistant .msg-avatar{  
+  background:linear-gradient(  
+    135deg,  
+    var(--accent),  
+    var(--accent2)  
+  );  
+}  
+  
+.message.user .msg-avatar{  
+  background:#24314a;  
+}  
+  
+.msg-body{  
+  max-width:min(720px,82%);  
+}  
+  
+.msg-name{  
+  font-size:10px;  
+  color:#7f8ba0;  
+  margin-bottom:5px;  
+}  
+  
+.message.user .msg-name{  
+  text-align:right;  
+}  
+  
+.msg-content{  
+  line-height:1.8;  
+  font-size:14px;  
+  white-space:pre-wrap;  
+  word-break:break-word;  
+}  
+  
+.message.user .msg-content{  
+  background:var(--user);  
+  border:1px solid rgba(255,255,255,.05);  
+  border-radius:15px 5px 15px 15px;  
+  padding:11px 14px;  
+}  
+  
+.message.assistant .msg-content{  
+  padding-top:1px;  
+}  
+  
+/* =========================  
+   TYPING  
+========================= */  
+  
+.typing{  
+  display:none;  
+  gap:5px;  
+  align-items:center;  
+  margin:0 auto 15px;  
+  width:min(850px,100%);  
+  color:#7f8ba0;  
+  font-size:11px;  
+}  
+  
+.typing.show{  
+  display:flex;  
+}  
+  
+.typing span{  
+  width:6px;  
+  height:6px;  
+  border-radius:50%;  
+  background:#77849a;  
+  animation:bounce 1s infinite;  
+}  
+  
+.typing span:nth-child(2){  
+  animation-delay:.15s;  
+}  
+  
+.typing span:nth-child(3){  
+  animation-delay:.3s;  
+}  
+  
+@keyframes bounce{  
+  
+  0%,60%,100%{  
+    transform:translateY(0);  
+    opacity:.4;  
+  }  
+  
+  30%{  
+    transform:translateY(-4px);  
+    opacity:1;  
+  }  
+  
+}  
+  
+/* =========================  
+   COMPOSER  
+========================= */  
+  
+.composer-wrap{  
+  padding:10px 18px 18px;  
+}  
+  
+.composer{  
+  width:min(850px,100%);  
+  margin:auto;  
+  border:1px solid rgba(255,255,255,.1);  
+  background:#0e1625;  
+  border-radius:17px;  
+  display:flex;  
+  align-items:flex-end;  
+  padding:9px;  
+  box-shadow:0 15px 45px rgba(0,0,0,.18);  
+}  
+  
+.composer textarea{  
+  flex:1;  
+  min-width:0;  
+  max-height:150px;  
+  min-height:42px;  
+  resize:none;  
+  border:0;  
+  outline:0;  
+  background:transparent;  
+  color:white;  
+  padding:10px 11px;  
+  line-height:1.6;  
+  font-size:14px;  
+}  
+  
+.composer textarea::placeholder{  
+  color:#667388;  
+}  
+  
+.send{  
+  width:42px;  
+  height:42px;  
+  flex-shrink:0;  
+  border:0;  
+  border-radius:12px;  
+  background:linear-gradient(  
+    135deg,  
+    var(--accent),  
+    #6345dd  
+  );  
+  color:white;  
+  cursor:pointer;  
+  font-size:17px;  
+  font-weight:900;  
+}  
+  
+.send:disabled{  
+  opacity:.45;  
+  cursor:not-allowed;  
+}  
+  
+.hint{  
+  width:min(850px,100%);  
+  margin:7px auto 0;  
+  text-align:center;  
+  color:#586477;  
+  font-size:9px;  
+}  
+  
+/* =========================  
+   TOAST  
+========================= */  
+  
+.toast{  
+  position:fixed;  
+  bottom:25px;  
+  left:50%;  
+  transform:translate(-50%,20px);  
+  opacity:0;  
+  pointer-events:none;  
+  z-index:300;  
+  background:#182235;  
+  color:white;  
+  border:1px solid var(--border);  
+  padding:10px 15px;  
+  border-radius:10px;  
+  font-size:12px;  
+  transition:.25s;  
+  max-width:90%;  
+  text-align:center;  
+}  
+  
+.toast.show{  
+  opacity:1;  
+  transform:translate(-50%,0);  
+}  
+  
+/* =========================  
+   MOBILE  
+========================= */  
+  
+@media(max-width:720px){  
+  
+  .sidebar{  
+    position:fixed;  
+    right:0;  
+    top:0;  
+    bottom:0;  
+    transform:translateX(105%);  
+    transition:.25s;  
+    box-shadow:-20px 0 50px rgba(0,0,0,.3);  
+  }  
+  
+  .sidebar.open{  
+    transform:translateX(0);  
+  }  
+  
+  .mobile-menu{  
+    display:block;  
+  }  
+  
+  .topbar{  
+    height:58px;  
+    padding:0 12px;  
+  }  
+  
+  .quota-badge{  
+    padding:7px 9px;  
+    font-size:9px;  
+  }  
+  
+  .quota-icon{  
+    font-size:12px;  
+  }  
+  
+  .messages{  
+    padding:18px 11px 12px;  
+  }  
+  
+  .composer-wrap{  
+    padding:7px 10px 12px;  
+  }  
+  
+  .composer{  
+    border-radius:15px;  
+  }  
+  
+  .hint{  
+    display:none;  
+  }  
+  
+  .welcome h1{  
+    font-size:23px;  
+  }  
+  
+  .welcome-quota{  
+    font-size:10px;  
+  }  
+  
+  .msg-body{  
+    max-width:86%;  
+  }  
+  
+}  
+  
+@media(max-width:420px){  
+  
+  .quota-text{  
+    max-width:115px;  
+    overflow:hidden;  
+    text-overflow:ellipsis;  
+  }  
+  
+  .chat-title{  
+    max-width:120px;  
+  }  
+  
+}  
+  
+</style>  </head>  <body>  <div class="app">    <!-- =========================  
+       SIDEBAR  
+  ========================== -->    <aside  
+    class="sidebar"  
+    id="sidebar"  
+  >  <div class="brand">  
 
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at top, #18213b 0%, var(--bg) 45%);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-    }
+  <div class="logo">  
+    AI  
+  </div>  
 
-    .app {
-      width: 100%;
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
+  <div class="brand-text">  
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
+    <strong>  
+      AI Agent Pro  
+    </strong>  
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 22px;
-      font-weight: bold;
-    }
+    <span>  
+      Smart AI Workspace  
+    </span>  
 
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 13px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--primary), #9f7cff);
-      font-size: 22px;
-    }
+  </div>  
 
-    .status {
-      color: var(--success);
-      font-size: 13px;
-    }
+</div>  
 
-    .hero {
-      text-align: center;
-      padding: 35px 15px;
-    }
 
-    .hero h1 {
-      font-size: clamp(30px, 8vw, 55px);
-      margin-bottom: 12px;
-      background: linear-gradient(90deg, #fff, #a995ff);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+<button  
+  class="new-chat"  
+  onclick="newChat()"  
+>  
+  ＋ محادثة جديدة  
+</button>  
 
-    .hero p {
-      color: var(--muted);
-      font-size: 16px;
-    }
 
-    .chat {
-      background: rgba(16, 24, 39, .92);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-    }
+<div class="sidebar-info">  
 
-    .messages {
-      min-height: 330px;
-      max-height: 55vh;
-      overflow-y: auto;
-      padding: 20px;
-    }
+  <div class="info-box">  
 
-    .message {
-      max-width: 85%;
-      padding: 13px 16px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
+    <div class="info-title">  
+      🤖 وكيل الذكاء الاصطناعي  
+    </div>  
 
-    .bot {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      margin-left: auto;
-      margin-right: 0;
-    }
+    <div class="info-text">  
+      اكتب أي سؤال أو مهمة وسيقوم  
+      AI Agent Pro بمساعدتك.  
+    </div>  
 
-    .user {
-      background: linear-gradient(135deg, var(--primary), var(--primary2));
-      margin-right: auto;
-      margin-left: 0;
-    }
 
-    .input-area {
-      display: flex;
-      gap: 10px;
-      padding: 15px;
-      border-top: 1px solid var(--border);
-    }
+    <div class="info-item">  
+      <span class="info-dot"></span>  
+      متصل بالذكاء الاصطناعي  
+    </div>  
 
-    input {
-      flex: 1;
-      min-width: 0;
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      outline: none;
-      background: #0b1220;
-      color: white;
-      font-size: 15px;
-    }
 
-    input:focus {
-      border-color: var(--primary);
-    }
+    <div class="info-item">  
+      <span class="info-dot"></span>  
+      تجربة مجانية متاحة  
+    </div>  
 
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 0 20px;
-      background: linear-gradient(135deg, var(--primary), var(--primary2));
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 15px;
-    }
+  </div>  
 
-    button:active {
-      transform: scale(.97);
-    }
+</div>  
 
-    .features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 18px;
-    }
 
-    .feature {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px 10px;
-      text-align: center;
-    }
+<!-- USER -->  
 
-    .feature .icon {
-      font-size: 25px;
-      margin-bottom: 8px;
-    }
+<div class="user-card">  
 
-    .feature span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-    }
+  <div class="user-row">  
 
-    @media (max-width: 600px) {
-      .app {
-        padding: 12px;
-      }
+    <div  
+      class="avatar"  
+      id="avatar"  
+    >  
+      U  
+    </div>  
 
-      .features {
-        grid-template-columns: 1fr;
-      }
 
-      .input-area {
-        padding: 10px;
-      }
+    <div class="user-info">  
 
-      button {
-        padding: 0 16px;
-      }
-    }
-  </style>
-</head>
+      <strong id="userName">  
+        المستخدم  
+      </strong>  
 
-<body>
+      <span  
+        id="userPlan"  
+        class="plan-status"  
+      >  
+        جاري التحميل...  
+      </span>  
 
-  <div class="app">
+    </div>  
 
-    <header>
-      <div class="logo">
-        <div class="logo-icon">✦</div>
-        <span>AI Agent Pro</span>
-      </div>
 
-      <div class="status">● Online</div>
-    </header>
+    <button  
+      class="logout"  
+      onclick="logout()"  
+      title="تسجيل الخروج"  
+    >  
+      ⎋  
+    </button>  
 
-    <section class="hero">
-      <h1>AI Agent Pro</h1>
-      <p>مساعدك الذكي لتنفيذ المهام والأفكار بسرعة.</p>
-    </section>
+  </div>  
 
-    <section class="chat">
+</div>
 
-      <div class="messages" id="messages">
-        <div class="message bot">
-          👋 مرحباً! أنا AI Agent Pro.
-          اكتب رسالتك بالأسفل لنبدأ.
-        </div>
-      </div>
+  </aside>    <!-- =========================  
+       MAIN  
+  ========================== -->    <main class="main">  <!-- TOPBAR -->  
 
-      <div class="input-area">
-        <input
-          id="messageInput"
-          type="text"
-          placeholder="اكتب رسالتك هنا..."
-          autocomplete="off"
-        >
+<header class="topbar">  
 
-        <button onclick="sendMessage()">إرسال</button>
-      </div>
+  <div class="top-left">  
 
-    </section>
+    <button  
+      class="mobile-menu"  
+      onclick="toggleSidebar()"  
+    >  
+      ☰  
+    </button>  
 
-    <section class="features">
 
-      <div class="feature">
-        <div class="icon">🤖</div>
-        <strong>AI Assistant</strong>
-        <span>مساعد ذكي</span>
-      </div>
+    <div>  
 
-      <div class="feature">
-        <div class="icon">⚡</div>
-        <strong>Fast</strong>
-        <span>استجابة سريعة</span>
-      </div>
+      <div  
+        class="chat-title"  
+        id="chatTitle"  
+      >  
+        محادثة جديدة  
+      </div>  
 
-      <div class="feature">
-        <div class="icon">🔒</div>
-        <strong>Secure</strong>
-        <span>واجهة آمنة</span>
-      </div>
 
-    </section>
+      <div class="status">  
 
-  </div>
+        <span class="status-dot"></span>  
 
-  <script>
-    const input = document.getElementById("messageInput");
-    const messages = document.getElementById("messages");
+        متصل  
 
-    function addMessage(text, type) {
-      const div = document.createElement("div");
-      div.className = "message " + type;
-      div.textContent = text;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-    }
+      </div>  
 
-    function sendMessage() {
-      const text = input.value.trim();
+    </div>  
 
-      if (!text) return;
+  </div>  
 
-      addMessage(text, "user");
-      input.value = "";
 
-      setTimeout(() => {
-        addMessage(
-          "وصلت رسالتك ✅\nواجهة AI Agent Pro تعمل حالياً. سنربط الذكاء الاصطناعي الحقيقي بالخطوة التالية.",
-          "bot"
-        );
-      }, 500);
-    }
+  <!-- QUOTA -->  
 
-    input.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        sendMessage();
-      }
-    });
-  </script>
+  <div  
+    id="quotaBadge"  
+    class="quota-badge trial"  
+  >  
 
-</body>
+    <span  
+      class="quota-icon"  
+      id="quotaIcon"  
+    >  
+      🎁  
+    </span>  
+
+    <span  
+      id="quotaText"  
+      class="quota-text"  
+    >  
+      تجربة مجانية · جاري التحميل...  
+    </span>  
+
+  </div>  
+
+</header>  
+
+
+<!-- =========================  
+     MESSAGES  
+========================== -->  
+
+<section  
+  class="messages"  
+  id="messages"  
+>  
+
+  <div  
+    class="messages-inner"  
+    id="messagesInner"  
+  >  
+
+    <div  
+      class="welcome"  
+      id="welcome"  
+    >  
+
+      <div class="welcome-box">  
+
+        <div class="welcome-logo">  
+          AI  
+        </div>  
+
+
+        <h1>  
+          مرحباً بك في AI Agent Pro  
+        </h1>  
+
+
+        <p>  
+          مساعدك الذكي لإنجاز المهام،  
+          الإجابة عن الأسئلة،  
+          وتحويل أفكارك إلى نتائج.  
+        </p>  
+
+
+        <div  
+          id="welcomeQuota"  
+          class="welcome-quota"  
+        >  
+          🎁 تجربة مجانية · جاري التحميل...  
+        </div>  
+
+      </div>  
+
+    </div>  
+
+  </div>  
+
+</section>  
+
+
+<!-- TYPING -->  
+
+<div  
+  class="typing"  
+  id="typing"  
+>  
+
+  <span></span>  
+  <span></span>  
+  <span></span>  
+
+  <label>  
+    AI Agent Pro يفكر...  
+  </label>  
+
+</div>  
+
+
+<!-- COMPOSER -->  
+
+<div class="composer-wrap">  
+
+  <form  
+    class="composer"  
+    id="composer"  
+  >  
+
+    <textarea  
+      id="messageInput"  
+      rows="1"  
+      placeholder="اكتب رسالتك هنا..."  
+      autocomplete="off"  
+    ></textarea>  
+
+
+    <button  
+      class="send"  
+      id="sendButton"  
+      type="submit"  
+    >  
+      ↑  
+    </button>  
+
+  </form>  
+
+
+  <div class="hint">  
+    AI Agent Pro قد يخطئ أحياناً،  
+    تحقق من المعلومات المهمة.  
+  </div>  
+
+</div>
+
+  </main>  </div>  <!-- TOAST -->  <div  
+  class="toast"  
+  id="toast"  
+></div>  <script>  
+  
+/* =====================================================  
+   STATE  
+===================================================== */  
+  
+let isSending = false;  
+  
+let accountState = {  
+  
+  plan:null,  
+  
+  usage:0,  
+  
+  limit:20,  
+  
+  trialMessagesUsed:0,  
+  
+  trialMessagesLimit:20,  
+  
+  remaining:20,  
+  
+  trial:true  
+  
+};  
+  
+  
+/* =====================================================  
+   HELPERS  
+===================================================== */  
+  
+const $ = id =>  
+  document.getElementById(id);  
+  
+  
+async function api(  
+  url,  
+  options = {}  
+){  
+  
+  const response =  
+    await fetch(  
+      url,  
+      {  
+        credentials:"include",  
+        ...options,  
+  
+        headers:{  
+          "Content-Type":  
+            "application/json",  
+  
+          ...(options.headers || {})  
+        }  
+      }  
+    );  
+  
+  
+  let data = {};  
+  
+  
+  try{  
+  
+    data =  
+      await response.json();  
+  
+  }catch(_){}  
+  
+  
+  if(!response.ok){  
+  
+    throw new Error(  
+      data.error ||  
+      "حدث خطأ"  
+    );  
+  
+  }  
+  
+  
+  return data;  
+  
+}  
+  
+  
+/* =====================================================  
+   TOAST  
+===================================================== */  
+  
+function showToast(message){  
+  
+  const toast =  
+    $("toast");  
+  
+  if(!toast)  
+    return;  
+  
+  
+  toast.textContent =  
+    message;  
+  
+  
+  toast.classList.add(  
+    "show"  
+  );  
+  
+  
+  clearTimeout(  
+    window.toastTimer  
+  );  
+  
+  
+  window.toastTimer =  
+    setTimeout(  
+      () => {  
+  
+        toast.classList.remove(  
+          "show"  
+        );  
+  
+      },  
+      2500  
+    );  
+  
+}  
+  
+  
+/* =====================================================  
+   PLAN NAME  
+===================================================== */  
+  
+function formatPlanName(plan){  
+  
+  const names = {  
+  
+    starter:"Starter",  
+  
+    business:"Business",  
+  
+    pro:"Pro",  
+  
+    trial:"تجربة مجانية"  
+  
+  };  
+  
+  
+  return (  
+    names[plan] ||  
+    plan ||  
+    "خطة"  
+  );  
+  
+}  
+  
+  
+/* =====================================================  
+   QUOTA UI  
+===================================================== */  
+  
+function updateQuotaUI(  
+  userOrData = {}  
+){  
+  
+  const plan =  
+    userOrData.plan ??  
+    accountState.plan;  
+  
+  
+  const usage =  
+    Number(  
+      userOrData.usage ??  
+      accountState.usage ??  
+      0  
+    );  
+  
+  
+  const limit =  
+    Number(  
+      userOrData.limit ??  
+      accountState.limit ??  
+      0  
+    );  
+  
+  
+  const trialMessagesUsed =  
+    Number(  
+      userOrData.trialMessagesUsed ??  
+      accountState.trialMessagesUsed ??  
+      0  
+    );  
+  
+  
+  const trialMessagesLimit =  
+    Number(  
+      userOrData.trialMessagesLimit ??  
+      accountState.trialMessagesLimit ??  
+      20  
+    );  
+  
+  
+  /*  
+    إذا السيرفر يقول plan=trial  
+    فهذا يعني أن المستخدم ضمن  
+    التجربة المجانية.  
+  */  
+  
+  const isTrial =  
+    plan === "trial";  
+  
+  
+  let remaining = 0;  
+  
+  
+  if(isTrial){  
+  
+    remaining =  
+      Math.max(  
+        0,  
+        trialMessagesLimit -  
+        trialMessagesUsed  
+      );  
+  
+  }  
+  
+  else if(  
+    plan &&  
+    limit > 0  
+  ){  
+  
+    remaining =  
+      Math.max(  
+        0,  
+        limit - usage  
+      );  
+  
+  }  
+  
+  else{  
+  
+    /*  
+      عندما تنتهي التجربة  
+      السيرفر يرجع plan=null  
+      و trialMessagesUsed=20.  
+    */  
+  
+    remaining =  
+      Math.max(  
+        0,  
+        trialMessagesLimit -  
+        trialMessagesUsed  
+      );  
+  
+  }  
+  
+  
+  const trialActive =  
+    !plan &&  
+    trialMessagesUsed <  
+    trialMessagesLimit;  
+  
+  
+  const actuallyTrial =  
+    isTrial ||  
+    trialActive;  
+  
+  
+  accountState = {  
+  
+    plan,  
+  
+    usage,  
+  
+    limit,  
+  
+    trialMessagesUsed,  
+  
+    trialMessagesLimit,  
+  
+    remaining,  
+  
+    trial:actuallyTrial  
+  
+  };  
+  
+  
+  const badge =  
+    $("quotaBadge");  
+  
+  
+  const quotaText =  
+    $("quotaText");  
+  
+  
+  const quotaIcon =  
+    $("quotaIcon");  
+  
+  
+  const welcomeQuota =  
+    $("welcomeQuota");  
+  
+  
+  const userPlan =  
+    $("userPlan");  
+  
+  
+  if(!badge || !quotaText)  
+    return;  
+  
+  
+  badge.classList.remove(  
+    "trial",  
+    "paid",  
+    "expired"  
+  );  
+  
+  
+  /* =========================  
+     FREE TRIAL  
+  ========================== */  
+  
+  if(actuallyTrial){  
+  
+    if(remaining > 0){  
+  
+      badge.classList.add(  
+        "trial"  
+      );  
+  
+  
+      if(quotaIcon)  
+        quotaIcon.textContent =  
+          "🎁";  
+  
+  
+      quotaText.textContent =  
+        `تجربة مجانية · المتبقي ${remaining} رسالة`;  
+  
+  
+      if(welcomeQuota){  
+  
+        welcomeQuota.textContent =  
+          `🎁 تجربة مجانية · متبقي ${remaining} من ${trialMessagesLimit} رسالة`;  
+  
+        welcomeQuota.style.display =  
+          "inline-flex";  
+  
+      }  
+  
+  
+      if(userPlan){  
+  
+        userPlan.className =  
+          "plan-status trial";  
+  
+        userPlan.textContent =  
+          `🎁 تجربة مجانية · ${remaining} رسالة متبقية`;  
+  
+      }  
+  
+    }  
+  
+    else{  
+  
+      showExpiredQuota();  
+  
+    }  
+  
+  
+    return;  
+  
+  }  
+  
+  
+  /* =========================  
+     PAID PLAN  
+  ========================== */  
+  
+  if(  
+    plan &&  
+    limit > 0  
+  ){  
+  
+    badge.classList.add(  
+      "paid"  
+    );  
+  
+  
+    if(quotaIcon)  
+      quotaIcon.textContent =  
+        "💎";  
+  
+  
+    quotaText.textContent =  
+      `${formatPlanName(plan)} · المتبقي ${remaining} رسالة`;  
+  
+  
+    if(welcomeQuota){  
+  
+      welcomeQuota.textContent =  
+        `💎 ${formatPlanName(plan)} · متبقي ${remaining} من ${limit} رسالة`;  
+  
+      welcomeQuota.style.display =  
+        "inline-flex";  
+  
+    }  
+  
+  
+    if(userPlan){  
+  
+      userPlan.className =  
+        "plan-status paid";  
+  
+      userPlan.textContent =  
+        `💎 ${formatPlanName(plan)} · ${remaining} رسالة متبقية`;  
+  
+    }  
+  
+  
+    return;  
+  
+  }  
+  
+  
+  /* =========================  
+     EXPIRED  
+  ========================== */  
+  
+  showExpiredQuota();  
+  
+}  
+  
+  
+/* =====================================================  
+   EXPIRED QUOTA  
+===================================================== */  
+  
+function showExpiredQuota(){  
+  
+  const badge =  
+    $("quotaBadge");  
+  
+  const quotaText =  
+    $("quotaText");  
+  
+  const quotaIcon =  
+    $("quotaIcon");  
+  
+  const welcomeQuota =  
+    $("welcomeQuota");  
+  
+  const userPlan =  
+    $("userPlan");  
+  
+  
+  if(badge){  
+  
+    badge.classList.remove(  
+      "trial",  
+      "paid"  
+    );  
+  
+    badge.classList.add(  
+      "expired"  
+    );  
+  
+  }  
+  
+  
+  if(quotaIcon)  
+    quotaIcon.textContent =  
+      "🔒";  
+  
+  
+  if(quotaText){  
+  
+    quotaText.textContent =  
+      "انتهت التجربة المجانية";  
+  
+  }  
+  
+  
+  if(welcomeQuota){  
+  
+    welcomeQuota.textContent =  
+      "🔒 انتهت التجربة المجانية · اشترك للمتابعة";  
+  
+    welcomeQuota.style.display =  
+      "inline-flex";  
+  
+  }  
+  
+  
+  if(userPlan){  
+  
+    userPlan.className =  
+      "plan-status expired";  
+  
+    userPlan.textContent =  
+      "🔒 انتهت التجربة المجانية";  
+  
+  }  
+  
+  
+  accountState.remaining = 0;  
+  
+}  
+  
+  
+/* =====================================================  
+   LOAD USER  
+===================================================== */  
+  
+async function loadUser(){  
+  
+  try{  
+  
+    const data =  
+      await api(  
+        "/api/me"  
+      );  
+  
+  
+    if(  
+      !data ||  
+      !data.user  
+    ){  
+  
+      location.href =  
+        "/login.html";  
+  
+      return false;  
+  
+    }  
+  
+  
+    const user =  
+      data.user;  
+  
+  
+    const name =  
+      user.name ||  
+      user.username ||  
+      user.email ||  
+      "المستخدم";  
+  
+  
+    $("userName")  
+      .textContent =  
+      name;  
+  
+  
+    $("avatar")  
+      .textContent =  
+      name  
+        .trim()  
+        .charAt(0)  
+        .toUpperCase() ||  
+      "U";  
+  
+  
+    /*  
+      السيرفر يرسل:  
+  
+      plan  
+      usage  
+      limit  
+      trialMessagesUsed  
+      trialMessagesLimit  
+    */  
+  
+    updateQuotaUI(  
+      user  
+    );  
+  
+  
+    return true;  
+  
+  }  
+  
+  catch(error){  
+  
+    location.href =  
+      "/login.html";  
+  
+    return false;  
+  
+  }  
+  
+}  
+  
+  
+/* =====================================================  
+   NEW CHAT  
+===================================================== */  
+  
+function newChat(){  
+  
+  $("messagesInner").innerHTML = `  
+  
+    <div  
+      class="welcome"  
+      id="welcome"  
+    >  
+  
+      <div class="welcome-box">  
+  
+        <div class="welcome-logo">  
+          AI  
+        </div>  
+  
+        <h1>  
+          محادثة جديدة  
+        </h1>  
+  
+        <p>  
+          اكتب رسالتك لبدء محادثة جديدة  
+          مع AI Agent Pro.  
+        </p>  
+  
+        <div  
+          id="welcomeQuota"  
+          class="welcome-quota"  
+        >  
+          🎁 تجربة مجانية  
+        </div>  
+  
+      </div>  
+  
+    </div>  
+  
+  `;  
+  
+  
+  updateQuotaUI(  
+    accountState  
+  );  
+  
+  
+  $("chatTitle")  
+    .textContent =  
+    "محادثة جديدة";  
+  
+  
+  closeSidebar();  
+  
+  
+  setTimeout(  
+    () => {  
+  
+      $("messageInput")  
+        .focus();  
+  
+    },  
+    100  
+  );  
+  
+}  
+  
+  
+/* =====================================================  
+   ADD MESSAGE  
+===================================================== */  
+  
+function addMessageToUI(  
+  role,  
+  content  
+){  
+  
+  const container =  
+    $("messagesInner");  
+  
+  
+  const welcome =  
+    $("welcome");  
+  
+  
+  if(welcome){  
+  
+    welcome.remove();  
+  
+  }  
+  
+  
+  const message =  
+    document.createElement(  
+      "div"  
+    );  
+  
+  
+  message.className =  
+    `message ${  
+      role === "user"  
+        ? "user"  
+        : "assistant"  
+    }`;  
+  
+  
+  const avatar =  
+    role === "user"  
+      ? "U"  
+      : "AI";  
+  
+  
+  const name =  
+    role === "user"  
+      ? "أنت"  
+      : "AI Agent Pro";  
+  
+  
+  message.innerHTML = `  
+  
+    <div class="msg-avatar">  
+      ${avatar}  
+    </div>  
+  
+    <div class="msg-body">  
+  
+      <div class="msg-name">  
+        ${name}  
+      </div>  
+  
+      <div class="msg-content"></div>  
+  
+    </div>  
+  
+  `;  
+  
+  
+  message.querySelector(  
+    ".msg-content"  
+  ).textContent =  
+    content || "";  
+  
+  
+  container.appendChild(  
+    message  
+  );  
+  
+  
+  scrollToBottom();  
+  
+}  
+  
+  
+/* =====================================================  
+   SCROLL  
+===================================================== */  
+  
+function scrollToBottom(){  
+  
+  const box =  
+    $("messages");  
+  
+  
+  setTimeout(  
+    () => {  
+  
+      box.scrollTop =  
+        box.scrollHeight;  
+  
+    },  
+    20  
+  );  
+  
+}  
+  
+  
+/* =====================================================  
+   SEND MESSAGE  
+===================================================== */  
+  
+async function sendMessage(){  
+  
+  if(isSending)  
+    return;  
+  
+  
+  const input =  
+    $("messageInput");  
+  
+  
+  const message =  
+    input.value.trim();  
+  
+  
+  if(!message)  
+    return;  
+  
+  
+  /*  
+    حماية واجهة المستخدم.  
+  
+    الحماية الحقيقية موجودة  
+    في server.js أيضاً.  
+  */  
+  
+  if(  
+    accountState.remaining <= 0  
+  ){  
+  
+    if(accountState.trial){  
+  
+      showToast(  
+        "انتهت رسائلك المجانية الـ20. اشترك للمتابعة."  
+      );  
+  
+    }  
+  
+    else{  
+  
+      showToast(  
+        "وصلت إلى حد الرسائل في خطتك."  
+      );  
+  
+    }  
+  
+  
+    return;  
+  
+  }  
+  
+  
+  isSending = true;  
+  
+  
+  $("sendButton")  
+    .disabled = true;  
+  
+  
+  input.value = "";  
+  
+  
+  resizeTextarea();  
+  
+  
+  addMessageToUI(  
+    "user",  
+    message  
+  );  
+  
+  
+  $("typing")  
+    .classList.add(  
+      "show"  
+    );  
+  
+  
+  try{  
+  
+    /*  
+      هذا هو الـ endpoint  
+      الموجود فعلياً في server.js  
+    */  
+  
+    const data =  
+      await api(  
+        "/api/chat",  
+        {  
+          method:"POST",  
+  
+          body:  
+            JSON.stringify({  
+  
+              message  
+  
+            })  
+  
+        }  
+      );  
+  
+  
+    addMessageToUI(  
+      "assistant",  
+      data.reply ||  
+      "لم يصل رد."  
+    );  
+  
+  
+    /*  
+      تحديث الرصيد مباشرة  
+      بعد نجاح الرسالة.  
+    */  
+  
+    if(  
+      typeof data.usage ===  
+      "number"  
+    ){  
+  
+      const newUsage =  
+        Number(  
+          data.usage  
+        );  
+  
+  
+      const newLimit =  
+        Number(  
+          data.limit ||  
+          accountState.limit ||  
+          0  
+        );  
+  
+  
+      if(  
+        data.trial === true  
+      ){  
+  
+        const trialLimit =  
+          Number(  
+            accountState.trialMessagesLimit ||  
+            20  
+          );  
+  
+  
+        updateQuotaUI({  
+  
+          plan:"trial",  
+  
+          usage:newUsage,  
+  
+          limit:trialLimit,  
+  
+          trialMessagesUsed:  
+            newUsage,  
+  
+          trialMessagesLimit:  
+            trialLimit  
+  
+        });  
+  
+      }  
+  
+      else{  
+  
+        updateQuotaUI({  
+  
+          plan:  
+            accountState.plan,  
+  
+          usage:  
+            newUsage,  
+  
+          limit:  
+            newLimit,  
+  
+          trialMessagesUsed:  
+            accountState.trialMessagesUsed,  
+  
+          trialMessagesLimit:  
+            accountState.trialMessagesLimit  
+  
+        });  
+  
+      }  
+  
+    }  
+  
+  
+    /*  
+      إذا كانت هذه آخر رسالة مجانية،  
+      نخلي الواجهة تحدث نفسها  
+      فوراً.  
+    */  
+  
+    if(  
+      data.trial === true &&  
+      Number(data.remaining) === 0  
+    ){  
+  
+      updateQuotaUI({  
+  
+        plan:"trial",  
+  
+        usage:  
+          accountState.trialMessagesLimit,  
+  
+        limit:  
+          accountState.trialMessagesLimit,  
+  
+        trialMessagesUsed:  
+          accountState.trialMessagesLimit,  
+  
+        trialMessagesLimit:  
+          accountState.trialMessagesLimit  
+  
+      });  
+  
+    }  
+  
+  
+    scrollToBottom();  
+  
+  }  
+  
+  catch(error){  
+  
+    const errorMessage =  
+      error.message ||  
+      "تعذر إرسال الرسالة";  
+  
+  
+    /*  
+      إذا انتهت التجربة،  
+      نحدث الواجهة.  
+    */  
+  
+    if(  
+      errorMessage.includes(  
+        "انتهت رسائلك المجانية"  
+      )  
+    ){  
+  
+      updateQuotaUI({  
+  
+        plan:null,  
+  
+        usage:  
+          accountState.trialMessagesLimit,  
+  
+        limit:0,  
+  
+        trialMessagesUsed:  
+          accountState.trialMessagesLimit,  
+  
+        trialMessagesLimit:  
+          accountState.trialMessagesLimit  
+  
+      });  
+  
+    }  
+  
+  
+    addMessageToUI(  
+      "assistant",  
+      "⚠️ " + errorMessage  
+    );  
+  
+  
+    showToast(  
+      errorMessage  
+    );  
+  
+  
+    scrollToBottom();  
+  
+  }  
+  
+  finally{  
+  
+    isSending = false;  
+  
+  
+    $("sendButton")  
+      .disabled = false;  
+  
+  
+    $("typing")  
+      .classList.remove(  
+        "show"  
+      );  
+  
+  
+    input.focus();  
+  
+  }  
+  
+}  
+  
+  
+/* =====================================================  
+   COMPOSER  
+===================================================== */  
+  
+$("composer")  
+  .addEventListener(  
+    "submit",  
+    event => {  
+  
+      event.preventDefault();  
+  
+      sendMessage();  
+  
+    }  
+  );  
+  
+  
+/* =====================================================  
+   TEXTAREA  
+===================================================== */  
+  
+function resizeTextarea(){  
+  
+  const textarea =  
+    $("messageInput");  
+  
+  
+  textarea.style.height =  
+    "auto";  
+  
+  
+  textarea.style.height =  
+    Math.min(  
+      textarea.scrollHeight,  
+      150  
+    ) + "px";  
+  
+}  
+  
+  
+$("messageInput")  
+  .addEventListener(  
+    "input",  
+    resizeTextarea  
+  );  
+  
+  
+$("messageInput")  
+  .addEventListener(  
+    "keydown",  
+    event => {  
+  
+      if(  
+        event.key === "Enter" &&  
+        !event.shiftKey &&  
+        window.innerWidth > 600  
+      ){  
+  
+        event.preventDefault();  
+  
+        sendMessage();  
+  
+      }  
+  
+    }  
+  );  
+  
+  
+/* =====================================================  
+   MOBILE SIDEBAR  
+===================================================== */  
+  
+function toggleSidebar(){  
+  
+  $("sidebar")  
+    .classList.toggle(  
+      "open"  
+    );  
+  
+}  
+  
+  
+function closeSidebar(){  
+  
+  if(  
+    window.innerWidth <= 720  
+  ){  
+  
+    $("sidebar")  
+      .classList.remove(  
+        "open"  
+      );  
+  
+  }  
+  
+}  
+  
+  
+/* =====================================================  
+   LOGOUT  
+===================================================== */  
+  
+async function logout(){  
+  
+  if(  
+    !confirm(  
+      "هل تريد تسجيل الخروج؟"  
+    )  
+  ){  
+  
+    return;  
+  
+  }  
+  
+  
+  try{  
+  
+    await api(  
+      "/api/logout",  
+      {  
+        method:"POST"  
+      }  
+    );  
+  
+  }  
+  
+  catch(_){}  
+  
+  
+  location.href =  
+    "/login.html";  
+  
+}  
+  
+  
+/* =====================================================  
+   START  
+===================================================== */  
+  
+async function startApp(){  
+  
+  const loggedIn =  
+    await loadUser();  
+  
+  
+  if(!loggedIn)  
+    return;  
+  
+  
+  /*  
+    لا يوجد تحميل للمحادثات  
+    لأن server.js الحالي  
+    لا يحتوي API للمحادثات.  
+  */  
+  
+  newChat();  
+  
+  
+  setTimeout(  
+    () => {  
+  
+      $("messageInput")  
+        .focus();  
+  
+    },  
+    250  
+  );  
+  
+}  
+  
+  
+startApp();  
+  
+</script>  </body>  
 </html>
