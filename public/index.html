@@ -1,663 +1,342 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#070b14">
-
 <title>AI Agent Pro</title>
 
 <style>
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0}
 
 :root{
   --bg:#070b14;
   --panel:#0d1320;
-  --panel2:#111a2a;
   --border:rgba(255,255,255,.08);
   --text:#f4f7fb;
   --muted:#8c98aa;
   --accent:#7c5cff;
   --accent2:#5ee7ff;
-  --danger:#ff5577;
   --user:#18243a;
   --success:#36d98b;
 }
+
+html,body{height:100%}
 
 body{
   font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--bg);
   color:var(--text);
   height:100vh;
+  height:100dvh;
   overflow:hidden;
 }
 
-button,
-textarea{
-  font:inherit;
-}
+button,textarea{font:inherit}
 
-.app{
-  display:flex;
-  width:100%;
-  height:100vh;
-}
+.app{display:flex;width:100%;height:100vh;height:100dvh}
 
 .sidebar{
   width:290px;
   flex-shrink:0;
-  background:rgba(13,19,32,.97);
+  background:rgba(13,19,32,.98);
   border-left:1px solid var(--border);
   display:flex;
   flex-direction:column;
   padding:16px;
-  z-index:20;
+  z-index:40;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:11px;
-  margin-bottom:18px;
-}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:18px}
 
 .logo{
-  width:42px;
-  height:42px;
-  border-radius:13px;
-  display:grid;
-  place-items:center;
-  font-weight:900;
-  font-size:17px;
-  color:white;
+  width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;
+  font-weight:900;font-size:17px;color:#fff;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   box-shadow:0 8px 28px rgba(124,92,255,.28);
 }
 
-.brand-text strong{
-  display:block;
-  font-size:16px;
-}
-
-.brand-text span{
-  color:var(--muted);
-  font-size:11px;
-}
+.brand-text strong{display:block;font-size:16px}
+.brand-text span{color:var(--muted);font-size:11px}
 
 .new-chat{
-  border:0;
-  width:100%;
-  padding:13px 14px;
-  border-radius:13px;
-  color:white;
-  font-weight:800;
-  cursor:pointer;
+  border:0;width:100%;padding:13px 14px;border-radius:13px;
+  color:#fff;font-weight:800;cursor:pointer;
   background:linear-gradient(135deg,#7c5cff,#6848e9);
   box-shadow:0 8px 22px rgba(124,92,255,.2);
   margin-bottom:16px;
 }
+.new-chat:active{transform:scale(.98)}
 
-.new-chat:active{
-  transform:scale(.98);
-}
-
-.sidebar-info{
-  flex:1;
-}
+.sidebar-info{flex:1}
 
 .info-box{
-  padding:15px;
-  border-radius:14px;
+  padding:15px;border-radius:14px;
   background:rgba(255,255,255,.025);
   border:1px solid var(--border);
 }
-
-.info-title{
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:8px;
-}
-
-.info-text{
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.8;
-}
-
+.info-title{font-size:12px;font-weight:800;margin-bottom:8px}
+.info-text{color:var(--muted);font-size:11px;line-height:1.8}
 .info-item{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  margin-top:9px;
-  color:#b8c2d1;
-  font-size:11px;
+  display:flex;align-items:center;gap:7px;margin-top:9px;
+  color:#b8c2d1;font-size:11px;
 }
-
 .info-dot{
-  width:6px;
-  height:6px;
-  border-radius:50%;
+  width:6px;height:6px;border-radius:50%;
   background:var(--success);
   box-shadow:0 0 8px rgba(54,217,139,.6);
 }
 
-.user-card{
-  border-top:1px solid var(--border);
-  padding-top:13px;
-  margin-top:10px;
-}
-
-.user-row{
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
+.user-card{border-top:1px solid var(--border);padding-top:13px;margin-top:10px}
+.user-row{display:flex;align-items:center;gap:9px}
 
 .avatar{
-  width:35px;
-  height:35px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:#202b40;
-  font-weight:800;
-  font-size:13px;
+  width:35px;height:35px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#202b40;font-weight:800;font-size:13px;
 }
 
-.user-info{
-  min-width:0;
-  flex:1;
-}
-
+.user-info{min-width:0;flex:1}
 .user-info strong{
-  display:block;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  font-size:12px;
+  display:block;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:12px;
 }
+.user-info span{color:var(--muted);font-size:10px}
 
-.user-info span{
-  color:var(--muted);
-  font-size:10px;
-}
-
-.plan-status{
-  display:block;
-  margin-top:3px;
-  font-size:10px !important;
-  color:#aeb9c9 !important;
-}
-
-.plan-status.trial{
-  color:#bdaeff !important;
-}
-
-.plan-status.paid{
-  color:#6ee7ad !important;
-}
-
-.plan-status.expired{
-  color:#ff829c !important;
-}
+.plan-status{display:block;margin-top:3px;font-size:10px !important;color:#aeb9c9 !important}
+.plan-status.trial{color:#bdaeff !important}
+.plan-status.paid{color:#6ee7ad !important}
+.plan-status.expired{color:#ff829c !important}
 
 .logout{
-  border:0;
-  background:transparent;
-  color:#8b95a5;
-  cursor:pointer;
-  padding:8px;
-  border-radius:8px;
+  border:0;background:transparent;color:#8b95a5;
+  cursor:pointer;padding:8px;border-radius:8px;font-size:16px;
 }
+.logout:hover{color:#ff6a88;background:rgba(255,255,255,.05)}
 
-.logout:hover{
-  color:#ff6a88;
-  background:rgba(255,255,255,.05);
+.login-btn{
+  border:0;cursor:pointer;color:#fff;font-weight:800;
+  padding:9px 14px;border-radius:11px;font-size:12px;
+  background:linear-gradient(135deg,#7c5cff,#6848e9);
+  white-space:nowrap;
 }
+.login-btn.full{width:100%;padding:12px;font-size:13px;margin-top:10px}
 
-.main{
-  flex:1;
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  position:relative;
-}
+.hidden{display:none !important}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
 
 .topbar{
-  height:64px;
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 22px;
+  height:64px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:0 22px;
   border-bottom:1px solid var(--border);
   background:rgba(7,11,20,.82);
   backdrop-filter:blur(15px);
 }
 
-.top-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:0;
-}
+.top-left{display:flex;align-items:center;gap:12px;min-width:0}
+.top-right{display:flex;align-items:center;gap:8px}
 
 .mobile-menu{
   display:none;
-  border:0;
-  background:transparent;
-  color:white;
-  font-size:21px;
-  cursor:pointer;
+  border:0;background:transparent;color:#fff;
+  font-size:26px;cursor:pointer;
+  width:42px;height:42px;
+  border-radius:10px;
+  line-height:1;
 }
+.mobile-menu:active{background:rgba(255,255,255,.08)}
 
 .chat-title{
-  font-weight:800;
-  font-size:14px;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
+  font-weight:800;font-size:14px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
 }
 
-.status{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  color:#8d99ab;
-  font-size:10px;
-}
-
+.status{display:flex;align-items:center;gap:6px;color:#8d99ab;font-size:10px}
 .status-dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#36d98b;
-  box-shadow:0 0 10px rgba(54,217,139,.7);
+  width:7px;height:7px;border-radius:50%;
+  background:#36d98b;box-shadow:0 0 10px rgba(54,217,139,.7);
 }
 
 .quota-badge{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  padding:8px 12px;
-  border-radius:11px;
+  display:flex;align-items:center;gap:7px;
+  padding:8px 12px;border-radius:11px;
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.035);
-  color:#cfd7e4;
-  font-size:11px;
-  white-space:nowrap;
+  color:#cfd7e4;font-size:11px;white-space:nowrap;
 }
-
-.quota-badge.trial{
-  border-color:rgba(124,92,255,.28);
-  background:rgba(124,92,255,.08);
-}
-
-.quota-badge.paid{
-  border-color:rgba(54,217,139,.22);
-  background:rgba(54,217,139,.06);
-}
-
+.quota-badge.trial{border-color:rgba(124,92,255,.28);background:rgba(124,92,255,.08)}
+.quota-badge.paid{border-color:rgba(54,217,139,.22);background:rgba(54,217,139,.06)}
 .quota-badge.expired{
   border-color:rgba(255,85,119,.22);
-  background:rgba(255,85,119,.06);
-  color:#ff91a8;
+  background:rgba(255,85,119,.06);color:#ff91a8;
 }
+.quota-icon{font-size:14px}
+.quota-text{font-weight:700}
 
-.quota-icon{
-  font-size:14px;
-}
-
-.quota-text{
-  font-weight:700;
-}
-
-.messages{
-  flex:1;
-  overflow-y:auto;
-  padding:28px 18px 20px;
-  scroll-behavior:smooth;
-}
-
-.messages-inner{
-  width:min(850px,100%);
-  margin:auto;
-}
+.messages{flex:1;overflow-y:auto;padding:28px 18px 20px;scroll-behavior:smooth}
+.messages-inner{width:min(850px,100%);margin:auto}
 
 .welcome{
-  min-height:55vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+  min-height:55vh;display:flex;align-items:center;
+  justify-content:center;text-align:center;
 }
-
-.welcome-box{
-  max-width:520px;
-}
+.welcome-box{max-width:520px}
 
 .welcome-logo{
-  width:65px;
-  height:65px;
-  border-radius:21px;
-  margin:0 auto 18px;
-  display:grid;
-  place-items:center;
-  font-size:25px;
-  font-weight:900;
+  width:65px;height:65px;border-radius:21px;margin:0 auto 18px;
+  display:grid;place-items:center;font-size:25px;font-weight:900;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   box-shadow:0 15px 45px rgba(124,92,255,.25);
 }
-
-.welcome h1{
-  font-size:27px;
-  margin-bottom:9px;
-}
-
-.welcome p{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.8;
-}
+.welcome h1{font-size:27px;margin-bottom:9px}
+.welcome p{color:var(--muted);font-size:13px;line-height:1.8}
 
 .welcome-quota{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:7px;
-  margin-top:17px;
-  padding:9px 14px;
-  border-radius:12px;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:7px;margin-top:17px;padding:9px 14px;border-radius:12px;
   background:rgba(124,92,255,.09);
   border:1px solid rgba(124,92,255,.22);
-  color:#c7bcff;
-  font-size:11px;
-  font-weight:700;
+  color:#c7bcff;font-size:11px;font-weight:700;
 }
 
-.message{
-  display:flex;
-  gap:11px;
-  margin-bottom:23px;
-  animation:appear .2s ease;
-}
+.welcome-login{margin-top:14px}
+
+.message{display:flex;gap:11px;margin-bottom:23px;animation:appear .2s ease}
 
 @keyframes appear{
-  from{
-    opacity:0;
-    transform:translateY(5px);
-  }
-
-  to{
-    opacity:1;
-    transform:none;
-  }
+  from{opacity:0;transform:translateY(5px)}
+  to{opacity:1;transform:none}
 }
 
-.message.user{
-  flex-direction:row-reverse;
-}
+.message.user{flex-direction:row-reverse}
 
 .msg-avatar{
-  width:32px;
-  height:32px;
-  flex-shrink:0;
-  border-radius:10px;
-  display:grid;
-  place-items:center;
-  font-size:11px;
-  font-weight:900;
+  width:32px;height:32px;flex-shrink:0;border-radius:10px;
+  display:grid;place-items:center;font-size:11px;font-weight:900;
 }
+.message.assistant .msg-avatar{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.message.user .msg-avatar{background:#24314a}
 
-.message.assistant .msg-avatar{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-}
-
-.message.user .msg-avatar{
-  background:#24314a;
-}
-
-.msg-body{
-  max-width:min(720px,82%);
-}
-
-.msg-name{
-  font-size:10px;
-  color:#7f8ba0;
-  margin-bottom:5px;
-}
-
-.message.user .msg-name{
-  text-align:right;
-}
+.msg-body{max-width:min(720px,82%)}
+.msg-name{font-size:10px;color:#7f8ba0;margin-bottom:5px}
+.message.user .msg-name{text-align:right}
 
 .msg-content{
-  line-height:1.8;
-  font-size:14px;
-  white-space:pre-wrap;
-  word-break:break-word;
+  line-height:1.8;font-size:14px;
+  white-space:pre-wrap;word-break:break-word;
 }
-
 .message.user .msg-content{
   background:var(--user);
   border:1px solid rgba(255,255,255,.05);
   border-radius:15px 5px 15px 15px;
   padding:11px 14px;
 }
-
-.message.assistant .msg-content{
-  padding-top:1px;
-}
+.message.assistant .msg-content{padding-top:1px}
 
 .typing{
-  display:none;
-  gap:5px;
-  align-items:center;
-  margin:0 auto 15px;
-  width:min(850px,100%);
-  color:#7f8ba0;
-  font-size:11px;
+  display:none;gap:5px;align-items:center;
+  margin:0 auto 15px;width:min(850px,100%);
+  padding:0 18px;color:#7f8ba0;font-size:11px;
 }
-
-.typing.show{
-  display:flex;
-}
-
+.typing.show{display:flex}
 .typing span{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#77849a;
-  animation:bounce 1s infinite;
+  width:6px;height:6px;border-radius:50%;
+  background:#77849a;animation:bounce 1s infinite;
 }
-
-.typing span:nth-child(2){
-  animation-delay:.15s;
-}
-
-.typing span:nth-child(3){
-  animation-delay:.3s;
-}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
 
 @keyframes bounce{
-  0%,60%,100%{
-    transform:translateY(0);
-    opacity:.4;
-  }
-
-  30%{
-    transform:translateY(-4px);
-    opacity:1;
-  }
+  0%,60%,100%{transform:translateY(0);opacity:.4}
+  30%{transform:translateY(-4px);opacity:1}
 }
 
 .composer-wrap{
   padding:10px 18px 18px;
+  padding-bottom:max(18px,env(safe-area-inset-bottom));
 }
 
 .composer{
-  width:min(850px,100%);
-  margin:auto;
+  width:min(850px,100%);margin:auto;
   border:1px solid rgba(255,255,255,.1);
-  background:#0e1625;
-  border-radius:17px;
-  display:flex;
-  align-items:flex-end;
-  padding:9px;
+  background:#0e1625;border-radius:17px;
+  display:flex;align-items:flex-end;padding:9px;
   box-shadow:0 15px 45px rgba(0,0,0,.18);
 }
 
 .composer textarea{
-  flex:1;
-  min-width:0;
-  max-height:150px;
-  min-height:42px;
-  resize:none;
-  border:0;
-  outline:0;
-  background:transparent;
-  color:white;
-  padding:10px 11px;
-  line-height:1.6;
-  font-size:14px;
+  flex:1;min-width:0;max-height:150px;min-height:42px;
+  resize:none;border:0;outline:0;background:transparent;
+  color:#fff;padding:10px 11px;line-height:1.6;font-size:16px;
 }
-
-.composer textarea::placeholder{
-  color:#667388;
-}
+.composer textarea::placeholder{color:#667388}
 
 .send{
-  width:42px;
-  height:42px;
-  flex-shrink:0;
-  border:0;
-  border-radius:12px;
+  width:42px;height:42px;flex-shrink:0;border:0;border-radius:12px;
   background:linear-gradient(135deg,var(--accent),#6345dd);
-  color:white;
-  cursor:pointer;
-  font-size:17px;
-  font-weight:900;
+  color:#fff;cursor:pointer;font-size:17px;font-weight:900;
 }
-
-.send:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
+.send:disabled{opacity:.45;cursor:not-allowed}
 
 .hint{
-  width:min(850px,100%);
-  margin:7px auto 0;
-  text-align:center;
-  color:#586477;
-  font-size:9px;
+  width:min(850px,100%);margin:7px auto 0;
+  text-align:center;color:#586477;font-size:9px;
 }
+
+.overlay{
+  position:fixed;inset:0;z-index:30;
+  background:rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:.25s;
+}
+.overlay.show{opacity:1;pointer-events:auto}
 
 .toast{
-  position:fixed;
-  bottom:25px;
-  left:50%;
+  position:fixed;bottom:25px;left:50%;
   transform:translate(-50%,20px);
-  opacity:0;
-  pointer-events:none;
-  z-index:300;
-  background:#182235;
-  color:white;
+  opacity:0;pointer-events:none;z-index:300;
+  background:#182235;color:#fff;
   border:1px solid var(--border);
-  padding:10px 15px;
-  border-radius:10px;
-  font-size:12px;
-  transition:.25s;
-  max-width:90%;
-  text-align:center;
+  padding:10px 15px;border-radius:10px;
+  font-size:12px;transition:.25s;
+  max-width:90%;text-align:center;
 }
+.toast.show{opacity:1;transform:translate(-50%,0)}
 
-.toast.show{
-  opacity:1;
-  transform:translate(-50%,0);
-}
-
-@media(max-width:720px){
-
+@media(max-width:900px){
   .sidebar{
-    position:fixed;
-    right:0;
-    top:0;
-    bottom:0;
+    position:fixed;right:0;top:0;bottom:0;
     transform:translateX(105%);
     transition:.25s;
     box-shadow:-20px 0 50px rgba(0,0,0,.3);
   }
+  .sidebar.open{transform:translateX(0)}
+  .mobile-menu{display:block}
+}
 
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .mobile-menu{
-    display:block;
-  }
-
-  .topbar{
-    height:58px;
-    padding:0 12px;
-  }
-
-  .quota-badge{
-    padding:7px 9px;
-    font-size:9px;
-  }
-
-  .quota-icon{
-    font-size:12px;
-  }
-
-  .messages{
-    padding:18px 11px 12px;
-  }
-
+@media(max-width:720px){
+  .topbar{height:58px;padding:0 10px}
+  .quota-badge{padding:7px 9px;font-size:9px}
+  .quota-icon{font-size:12px}
+  .messages{padding:18px 11px 12px}
   .composer-wrap{
     padding:7px 10px 12px;
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
   }
-
-  .composer{
-    border-radius:15px;
-  }
-
-  .hint{
-    display:none;
-  }
-
-  .welcome h1{
-    font-size:23px;
-  }
-
-  .welcome-quota{
-    font-size:10px;
-  }
-
-  .msg-body{
-    max-width:86%;
-  }
+  .composer{border-radius:15px}
+  .hint{display:none}
+  .welcome h1{font-size:23px}
+  .welcome-quota{font-size:10px}
+  .msg-body{max-width:86%}
 }
 
 @media(max-width:420px){
-
-  .quota-text{
-    max-width:115px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .chat-title{
-    max-width:120px;
-  }
+  .quota-text{max-width:100px;overflow:hidden;text-overflow:ellipsis}
+  .chat-title{max-width:110px}
+  .status{display:none}
 }
-
 </style>
 </head>
 
@@ -668,85 +347,40 @@ textarea{
 <aside class="sidebar" id="sidebar">
 
   <div class="brand">
-
-    <div class="logo">
-      AI
-    </div>
-
+    <div class="logo">AI</div>
     <div class="brand-text">
-
-      <strong>
-        AI Agent Pro
-      </strong>
-
-      <span>
-        Smart AI Workspace
-      </span>
-
+      <strong>AI Agent Pro</strong>
+      <span>Smart AI Workspace</span>
     </div>
-
   </div>
 
-  <button class="new-chat" onclick="newChat()">
-    ＋ محادثة جديدة
-  </button>
+  <button class="new-chat" onclick="newChat()">＋ محادثة جديدة</button>
 
   <div class="sidebar-info">
-
     <div class="info-box">
-
-      <div class="info-title">
-        🤖 وكيل الذكاء الاصطناعي
-      </div>
-
+      <div class="info-title">🤖 وكيل الذكاء الاصطناعي</div>
       <div class="info-text">
-        اكتب أي سؤال أو مهمة وسيقوم
-        AI Agent Pro بمساعدتك.
+        اكتب أي سؤال أو مهمة وسيقوم AI Agent Pro بمساعدتك.
       </div>
-
-      <div class="info-item">
-        <span class="info-dot"></span>
-        متصل بالذكاء الاصطناعي
-      </div>
-
-      <div class="info-item">
-        <span class="info-dot"></span>
-        تجربة مجانية متاحة
-      </div>
-
+      <div class="info-item"><span class="info-dot"></span> متصل بالذكاء الاصطناعي</div>
+      <div class="info-item"><span class="info-dot"></span> تجربة مجانية متاحة</div>
     </div>
-
   </div>
 
   <div class="user-card">
 
-    <div class="user-row">
-
-      <div class="avatar" id="avatar">
-        U
-      </div>
-
+    <div class="user-row" id="userRow">
+      <div class="avatar" id="avatar">U</div>
       <div class="user-info">
-
-        <strong id="userName">
-          المستخدم
-        </strong>
-
-        <span id="userPlan" class="plan-status">
-          تجربة مجانية
-        </span>
-
+        <strong id="userName">المستخدم</strong>
+        <span id="userPlan" class="plan-status">جارٍ التحميل...</span>
       </div>
-
-      <button
-        class="logout"
-        onclick="logout()"
-        title="تسجيل الخروج"
-      >
-        ⎋
-      </button>
-
+      <button class="logout" id="logoutBtn" onclick="logout()" title="تسجيل الخروج">⎋</button>
     </div>
+
+    <button class="login-btn full hidden" id="sidebarLogin" onclick="goLogin()">
+      تسجيل الدخول / إنشاء حساب
+    </button>
 
   </div>
 
@@ -757,146 +391,47 @@ textarea{
 <header class="topbar">
 
   <div class="top-left">
-
-    <button
-      class="mobile-menu"
-      onclick="toggleSidebar()"
-    >
-      ☰
-    </button>
-
+    <button class="mobile-menu" onclick="toggleSidebar()" aria-label="القائمة">☰</button>
     <div>
-
-      <div
-        class="chat-title"
-        id="chatTitle"
-      >
-        محادثة جديدة
-      </div>
-
-      <div class="status">
-
-        <span class="status-dot"></span>
-
-        متصل
-
-      </div>
-
+      <div class="chat-title" id="chatTitle">محادثة جديدة</div>
+      <div class="status"><span class="status-dot"></span> متصل</div>
     </div>
-
   </div>
 
-  <div
-    id="quotaBadge"
-    class="quota-badge trial"
-  >
+  <div class="top-right">
+    <button class="login-btn hidden" id="topLogin" onclick="goLogin()">تسجيل الدخول</button>
 
-    <span
-      class="quota-icon"
-      id="quotaIcon"
-    >
-      🎁
-    </span>
-
-    <span
-      id="quotaText"
-      class="quota-text"
-    >
-      تجربة مجانية · 20 رسالة
-    </span>
-
+    <div id="quotaBadge" class="quota-badge trial">
+      <span class="quota-icon" id="quotaIcon">🎁</span>
+      <span id="quotaText" class="quota-text">تجربة مجانية · 20 رسالة</span>
+    </div>
   </div>
 
 </header>
 
-<section
-  class="messages"
-  id="messages"
->
-
-  <div
-    class="messages-inner"
-    id="messagesInner"
-  >
-
-    <div
-      class="welcome"
-      id="welcome"
-    >
-
-      <div class="welcome-box">
-
-        <div class="welcome-logo">
-          AI
-        </div>
-
-        <h1>
-          مرحباً بك في AI Agent Pro
-        </h1>
-
-        <p>
-          مساعدك الذكي لإنجاز المهام،
-          الإجابة عن الأسئلة،
-          وتحويل أفكارك إلى نتائج.
-        </p>
-
-        <div
-          id="welcomeQuota"
-          class="welcome-quota"
-        >
-          🎁 تجربة مجانية · 20 رسالة
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
+<section class="messages" id="messages">
+  <div class="messages-inner" id="messagesInner"></div>
 </section>
 
-<div
-  class="typing"
-  id="typing"
->
-
-  <span></span>
-  <span></span>
-  <span></span>
-
-  <label>
-    AI Agent Pro يفكر...
-  </label>
-
+<div class="typing" id="typing">
+  <span></span><span></span><span></span>
+  <label>AI Agent Pro يفكر...</label>
 </div>
 
 <div class="composer-wrap">
 
-  <form
-    class="composer"
-    id="composer"
-  >
-
+  <form class="composer" id="composer">
     <textarea
       id="messageInput"
       rows="1"
       placeholder="اكتب رسالتك هنا..."
       autocomplete="off"
     ></textarea>
-
-    <button
-      class="send"
-      id="sendButton"
-      type="submit"
-    >
-      ↑
-    </button>
-
+    <button class="send" id="sendButton" type="submit">↑</button>
   </form>
 
   <div class="hint">
-    AI Agent Pro قد يخطئ أحياناً،
-    تحقق من المعلومات المهمة.
+    AI Agent Pro قد يخطئ أحياناً، تحقق من المعلومات المهمة.
   </div>
 
 </div>
@@ -905,14 +440,15 @@ textarea{
 
 </div>
 
-<div
-  class="toast"
-  id="toast"
-></div>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="toast" id="toast"></div>
 
 <script>
 
 let isSending = false;
+
+/* loading | guest | user */
+let authState = "loading";
 
 let accountState = {
   plan:"trial",
@@ -924,44 +460,53 @@ let accountState = {
   trial:true
 };
 
-const $ = id =>
-  document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 
 /* =========================
    API
 ========================= */
 
-async function api(url, options = {}){
+async function api(url, options = {}, timeoutMs = 20000){
 
-  const response = await fetch(
-    url,
-    {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try{
+
+    const response = await fetch(url, {
       credentials:"include",
+      signal:controller.signal,
       ...options,
-
       headers:{
         "Content-Type":"application/json",
         ...(options.headers || {})
       }
+    });
+
+    let data = {};
+
+    try{ data = await response.json(); }catch(_){}
+
+    if(!response.ok){
+      const err = new Error(data.error || "حدث خطأ");
+      err.status = response.status;
+      throw err;
     }
-  );
 
-  let data = {};
+    return data;
 
-  try{
-    data = await response.json();
-  }catch(_){}
+  }catch(e){
 
-  if(!response.ok){
+    if(e.name === "AbortError"){
+      throw new Error("انتهت مهلة الاتصال بالخادم");
+    }
 
-    throw new Error(
-      data.error || "حدث خطأ"
-    );
+    throw e;
 
+  }finally{
+    clearTimeout(timer);
   }
-
-  return data;
 }
 
 
@@ -972,22 +517,26 @@ async function api(url, options = {}){
 function showToast(message){
 
   const toast = $("toast");
-
   if(!toast) return;
 
   toast.textContent = message;
-
   toast.classList.add("show");
 
   clearTimeout(window.toastTimer);
 
   window.toastTimer = setTimeout(
-    () => {
-      toast.classList.remove("show");
-    },
-    2500
+    () => toast.classList.remove("show"),
+    2800
   );
+}
 
+
+/* =========================
+   LOGIN NAVIGATION
+========================= */
+
+function goLogin(){
+  location.href = "/login.html";
 }
 
 
@@ -1009,74 +558,85 @@ function formatPlanName(plan){
 
 
 /* =========================
+   GUEST UI
+========================= */
+
+function showGuestUI(){
+
+  const badge = $("quotaBadge");
+
+  badge.classList.remove("trial","paid","expired");
+
+  $("quotaIcon").textContent = "🔑";
+  $("quotaText").textContent = "غير مسجل";
+
+  const welcomeQuota = $("welcomeQuota");
+  if(welcomeQuota){
+    welcomeQuota.textContent = "🔑 سجّل الدخول للحصول على 20 رسالة مجانية";
+  }
+
+  $("userName").textContent = "زائر";
+  $("avatar").textContent = "؟";
+
+  const userPlan = $("userPlan");
+  userPlan.className = "plan-status";
+  userPlan.textContent = "غير مسجل الدخول";
+
+  $("logoutBtn").classList.add("hidden");
+  $("sidebarLogin").classList.remove("hidden");
+  $("topLogin").classList.remove("hidden");
+
+  const wl = $("welcomeLogin");
+  if(wl) wl.classList.remove("hidden");
+}
+
+function showUserChrome(){
+
+  $("logoutBtn").classList.remove("hidden");
+  $("sidebarLogin").classList.add("hidden");
+  $("topLogin").classList.add("hidden");
+
+  const wl = $("welcomeLogin");
+  if(wl) wl.classList.add("hidden");
+}
+
+
+/* =========================
    QUOTA
 ========================= */
 
 function updateQuotaUI(userOrData = {}){
 
+  if(authState === "guest"){
+    showGuestUI();
+    return;
+  }
+
   const plan =
-    userOrData.plan ??
-    accountState.plan;
+    userOrData.plan !== undefined
+      ? userOrData.plan
+      : accountState.plan;
 
-  const usage =
-    Number(
-      userOrData.usage ??
-      accountState.usage ??
-      0
-    );
-
-  const limit =
-    Number(
-      userOrData.limit ??
-      accountState.limit ??
-      20
-    );
+  const usage = Number(userOrData.usage ?? accountState.usage ?? 0);
+  const limit = Number(userOrData.limit ?? accountState.limit ?? 20);
 
   const trialMessagesUsed =
-    Number(
-      userOrData.trialMessagesUsed ??
-      accountState.trialMessagesUsed ??
-      0
-    );
+    Number(userOrData.trialMessagesUsed ?? accountState.trialMessagesUsed ?? 0);
 
   const trialMessagesLimit =
-    Number(
-      userOrData.trialMessagesLimit ??
-      accountState.trialMessagesLimit ??
-      20
-    );
+    Number(userOrData.trialMessagesLimit ?? accountState.trialMessagesLimit ?? 20);
 
   let remaining;
 
   if(plan === "trial"){
-
-    remaining = Math.max(
-      0,
-      trialMessagesLimit - trialMessagesUsed
-    );
-
+    remaining = Math.max(0, trialMessagesLimit - trialMessagesUsed);
   }else if(plan && limit > 0){
-
-    remaining = Math.max(
-      0,
-      limit - usage
-    );
-
+    remaining = Math.max(0, limit - usage);
   }else{
-
-    remaining = Math.max(
-      0,
-      trialMessagesLimit - trialMessagesUsed
-    );
-
+    remaining = 0;
   }
 
-  const actuallyTrial =
-    plan === "trial" ||
-    (
-      !plan &&
-      trialMessagesUsed < trialMessagesLimit
-    );
+  const isTrial = plan === "trial";
 
   accountState = {
     plan,
@@ -1085,7 +645,7 @@ function updateQuotaUI(userOrData = {}){
     trialMessagesUsed,
     trialMessagesLimit,
     remaining,
-    trial:actuallyTrial
+    trial:isTrial
   };
 
   const badge = $("quotaBadge");
@@ -1096,74 +656,47 @@ function updateQuotaUI(userOrData = {}){
 
   if(!badge || !quotaText) return;
 
-  badge.classList.remove(
-    "trial",
-    "paid",
-    "expired"
-  );
+  badge.classList.remove("trial","paid","expired");
 
-  if(actuallyTrial && remaining > 0){
+  if(isTrial && remaining > 0){
 
     badge.classList.add("trial");
-
-    if(quotaIcon)
-      quotaIcon.textContent = "🎁";
-
-    quotaText.textContent =
-      `تجربة مجانية · المتبقي ${remaining} رسالة`;
+    quotaIcon.textContent = "🎁";
+    quotaText.textContent = `تجربة مجانية · المتبقي ${remaining} رسالة`;
 
     if(welcomeQuota){
-
       welcomeQuota.textContent =
         `🎁 تجربة مجانية · متبقي ${remaining} من ${trialMessagesLimit} رسالة`;
-
     }
 
     if(userPlan){
-
-      userPlan.className =
-        "plan-status trial";
-
-      userPlan.textContent =
-        `🎁 تجربة مجانية · ${remaining} رسالة متبقية`;
-
+      userPlan.className = "plan-status trial";
+      userPlan.textContent = `🎁 تجربة مجانية · ${remaining} رسالة متبقية`;
     }
 
     return;
   }
 
-  if(plan && limit > 0){
+  if(plan && plan !== "trial" && limit > 0){
 
     badge.classList.add("paid");
-
-    if(quotaIcon)
-      quotaIcon.textContent = "💎";
-
-    quotaText.textContent =
-      `${formatPlanName(plan)} · المتبقي ${remaining} رسالة`;
+    quotaIcon.textContent = "💎";
+    quotaText.textContent = `${formatPlanName(plan)} · المتبقي ${remaining} رسالة`;
 
     if(welcomeQuota){
-
       welcomeQuota.textContent =
         `💎 ${formatPlanName(plan)} · متبقي ${remaining} من ${limit} رسالة`;
-
     }
 
     if(userPlan){
-
-      userPlan.className =
-        "plan-status paid";
-
-      userPlan.textContent =
-        `💎 ${formatPlanName(plan)} · ${remaining} رسالة متبقية`;
-
+      userPlan.className = "plan-status paid";
+      userPlan.textContent = `💎 ${formatPlanName(plan)} · ${remaining} رسالة متبقية`;
     }
 
     return;
   }
 
   showExpiredQuota();
-
 }
 
 
@@ -1174,63 +707,47 @@ function updateQuotaUI(userOrData = {}){
 function showExpiredQuota(){
 
   const badge = $("quotaBadge");
-  const quotaText = $("quotaText");
-  const quotaIcon = $("quotaIcon");
   const welcomeQuota = $("welcomeQuota");
   const userPlan = $("userPlan");
 
-  if(badge){
+  badge.classList.remove("trial","paid");
+  badge.classList.add("expired");
 
-    badge.classList.remove(
-      "trial",
-      "paid"
-    );
+  $("quotaIcon").textContent = "🔒";
+  $("quotaText").textContent = "انتهت التجربة المجانية";
 
-    badge.classList.add("expired");
-
+  if(welcomeQuota){
+    welcomeQuota.textContent = "🔒 انتهت التجربة المجانية · اشترك للمتابعة";
   }
 
-  if(quotaIcon)
-    quotaIcon.textContent = "🔒";
-
-  if(quotaText)
-    quotaText.textContent =
-      "انتهت التجربة المجانية";
-
-  if(welcomeQuota)
-    welcomeQuota.textContent =
-      "🔒 انتهت التجربة المجانية · اشترك للمتابعة";
-
   if(userPlan){
-
-    userPlan.className =
-      "plan-status expired";
-
-    userPlan.textContent =
-      "🔒 انتهت التجربة المجانية";
-
+    userPlan.className = "plan-status expired";
+    userPlan.textContent = "🔒 انتهت التجربة المجانية";
   }
 
   accountState.remaining = 0;
-
 }
 
 
 /* =========================
-   OPTIONAL USER LOAD
+   LOAD USER (لا يعلق الواجهة)
 ========================= */
 
 async function loadUser(){
 
   try{
 
-    const data =
-      await api("/api/me");
+    const data = await api("/api/me", {}, 10000);
 
-    if(!data || !data.user)
+    if(!data || !data.user){
+      authState = "guest";
+      showGuestUI();
       return false;
+    }
 
     const user = data.user;
+
+    authState = "user";
 
     const name =
       user.name ||
@@ -1239,31 +756,23 @@ async function loadUser(){
       "المستخدم";
 
     $("userName").textContent = name;
+    $("avatar").textContent = name.trim().charAt(0).toUpperCase() || "U";
 
-    $("avatar").textContent =
-      name.trim().charAt(0).toUpperCase() || "U";
-
+    showUserChrome();
     updateQuotaUI(user);
 
     return true;
 
   }catch(error){
 
-    /*
-      لا نوقف الواجهة إذا فشل /api/me.
-      الواجهة ستبقى مفتوحة ويمكننا إصلاح
-      تسجيل الدخول والـAPI لاحقاً.
-    */
+    console.log("تعذر تحميل بيانات المستخدم:", error);
 
-    console.log(
-      "تعذر تحميل بيانات المستخدم:",
-      error
-    );
+    /* فشل الاتصال: نبقي الواجهة مفتوحة ونعرض زر الدخول */
+    authState = "guest";
+    showGuestUI();
 
     return false;
-
   }
-
 }
 
 
@@ -1275,53 +784,43 @@ function newChat(){
 
   $("messagesInner").innerHTML = `
 
-    <div
-      class="welcome"
-      id="welcome"
-    >
-
+    <div class="welcome" id="welcome">
       <div class="welcome-box">
 
-        <div class="welcome-logo">
-          AI
-        </div>
+        <div class="welcome-logo">AI</div>
 
-        <h1>
-          محادثة جديدة
-        </h1>
+        <h1>محادثة جديدة</h1>
 
-        <p>
-          اكتب رسالتك لبدء محادثة جديدة
-          مع AI Agent Pro.
-        </p>
+        <p>اكتب رسالتك لبدء محادثة جديدة مع AI Agent Pro.</p>
 
-        <div
-          id="welcomeQuota"
-          class="welcome-quota"
-        >
+        <div id="welcomeQuota" class="welcome-quota">
           🎁 تجربة مجانية · 20 رسالة
         </div>
 
-      </div>
+        <div class="welcome-login hidden" id="welcomeLogin">
+          <button class="login-btn" onclick="goLogin()">
+            تسجيل الدخول / إنشاء حساب
+          </button>
+        </div>
 
+      </div>
     </div>
 
   `;
 
-  updateQuotaUI(accountState);
+  if(authState === "guest"){
+    showGuestUI();
+  }else if(authState === "user"){
+    updateQuotaUI(accountState);
+  }
 
-  $("chatTitle").textContent =
-    "محادثة جديدة";
+  $("chatTitle").textContent = "محادثة جديدة";
 
   closeSidebar();
 
-  setTimeout(
-    () => {
-      $("messageInput").focus();
-    },
-    100
-  );
-
+  setTimeout(() => {
+    if(window.innerWidth > 900) $("messageInput").focus();
+  }, 100);
 }
 
 
@@ -1331,61 +830,31 @@ function newChat(){
 
 function addMessageToUI(role, content){
 
-  const container =
-    $("messagesInner");
+  const container = $("messagesInner");
+  const welcome = $("welcome");
 
-  const welcome =
-    $("welcome");
+  if(welcome) welcome.remove();
 
-  if(welcome)
-    welcome.remove();
+  const message = document.createElement("div");
 
-  const message =
-    document.createElement("div");
+  message.className = `message ${role === "user" ? "user" : "assistant"}`;
 
-  message.className =
-    `message ${
-      role === "user"
-        ? "user"
-        : "assistant"
-    }`;
-
-  const avatar =
-    role === "user"
-      ? "U"
-      : "AI";
-
-  const name =
-    role === "user"
-      ? "أنت"
-      : "AI Agent Pro";
+  const avatar = role === "user" ? "U" : "AI";
+  const name = role === "user" ? "أنت" : "AI Agent Pro";
 
   message.innerHTML = `
-
-    <div class="msg-avatar">
-      ${avatar}
-    </div>
-
+    <div class="msg-avatar">${avatar}</div>
     <div class="msg-body">
-
-      <div class="msg-name">
-        ${name}
-      </div>
-
+      <div class="msg-name">${name}</div>
       <div class="msg-content"></div>
-
     </div>
-
   `;
 
-  message.querySelector(
-    ".msg-content"
-  ).textContent = content || "";
+  message.querySelector(".msg-content").textContent = content || "";
 
   container.appendChild(message);
 
   scrollToBottom();
-
 }
 
 
@@ -1397,14 +866,9 @@ function scrollToBottom(){
 
   const box = $("messages");
 
-  setTimeout(
-    () => {
-      box.scrollTop =
-        box.scrollHeight;
-    },
-    20
-  );
-
+  setTimeout(() => {
+    box.scrollTop = box.scrollHeight;
+  }, 20);
 }
 
 
@@ -1414,17 +878,18 @@ function scrollToBottom(){
 
 async function sendMessage(){
 
-  if(isSending)
+  if(isSending) return;
+
+  const input = $("messageInput");
+  const message = input.value.trim();
+
+  if(!message) return;
+
+  if(authState !== "user"){
+    showToast("سجّل الدخول أولاً لتتمكن من المحادثة");
+    setTimeout(goLogin, 1200);
     return;
-
-  const input =
-    $("messageInput");
-
-  const message =
-    input.value.trim();
-
-  if(!message)
-    return;
+  }
 
   if(accountState.remaining <= 0){
 
@@ -1438,120 +903,87 @@ async function sendMessage(){
   }
 
   isSending = true;
-
   $("sendButton").disabled = true;
 
   input.value = "";
-
   resizeTextarea();
 
-  addMessageToUI(
-    "user",
-    message
-  );
+  addMessageToUI("user", message);
 
   $("typing").classList.add("show");
+  scrollToBottom();
 
   try{
 
-    const data =
-      await api(
-        "/api/chat",
-        {
-          method:"POST",
-
-          body:JSON.stringify({
-            message
-          })
-        }
-      );
-
-    addMessageToUI(
-      "assistant",
-      data.reply || "لم يصل رد."
+    const data = await api(
+      "/api/chat",
+      {
+        method:"POST",
+        body:JSON.stringify({ message })
+      },
+      90000
     );
+
+    addMessageToUI("assistant", data.reply || "لم يصل رد.");
 
     if(typeof data.usage === "number"){
 
-      const newUsage =
-        Number(data.usage);
-
-      const newLimit =
-        Number(
-          data.limit ||
-          accountState.limit ||
-          20
-        );
+      const newUsage = Number(data.usage);
+      const newLimit = Number(data.limit || accountState.limit || 20);
 
       if(data.trial === true){
 
-        const trialLimit =
-          Number(
-            accountState.trialMessagesLimit ||
-            20
-          );
+        const trialLimit = Number(accountState.trialMessagesLimit || 20);
 
         updateQuotaUI({
-
           plan:"trial",
-
           usage:newUsage,
-
           limit:trialLimit,
-
           trialMessagesUsed:newUsage,
-
           trialMessagesLimit:trialLimit
-
         });
 
       }else{
 
         updateQuotaUI({
-
           plan:accountState.plan,
-
           usage:newUsage,
-
           limit:newLimit,
-
-          trialMessagesUsed:
-            accountState.trialMessagesUsed,
-
-          trialMessagesLimit:
-            accountState.trialMessagesLimit
-
+          trialMessagesUsed:accountState.trialMessagesUsed,
+          trialMessagesLimit:accountState.trialMessagesLimit
         });
-
       }
-
     }
 
   }catch(error){
 
-    const errorMessage =
-      error.message ||
-      "تعذر إرسال الرسالة";
+    /* انتهت الجلسة */
+    if(error.status === 401){
+      authState = "guest";
+      showGuestUI();
+      showToast("انتهت الجلسة. سجّل الدخول من جديد.");
+      setTimeout(goLogin, 1500);
+      return;
+    }
 
-    addMessageToUI(
-      "assistant",
-      "⚠️ " + errorMessage
-    );
+    /* انتهت الرسائل المجانية */
+    if(error.status === 402){
+      showExpiredQuota();
+    }
 
+    const errorMessage = error.message || "تعذر إرسال الرسالة";
+
+    addMessageToUI("assistant", "⚠️ " + errorMessage);
     showToast(errorMessage);
 
   }finally{
 
     isSending = false;
-
     $("sendButton").disabled = false;
-
     $("typing").classList.remove("show");
 
-    input.focus();
-
+    if(window.innerWidth > 900) input.focus();
   }
-
 }
 
 
@@ -1559,16 +991,10 @@ async function sendMessage(){
    COMPOSER
 ========================= */
 
-$("composer").addEventListener(
-  "submit",
-  event => {
-
-    event.preventDefault();
-
-    sendMessage();
-
-  }
-);
+$("composer").addEventListener("submit", event => {
+  event.preventDefault();
+  sendMessage();
+});
 
 
 /* =========================
@@ -1577,43 +1003,25 @@ $("composer").addEventListener(
 
 function resizeTextarea(){
 
-  const textarea =
-    $("messageInput");
+  const textarea = $("messageInput");
 
-  textarea.style.height =
-    "auto";
-
-  textarea.style.height =
-    Math.min(
-      textarea.scrollHeight,
-      150
-    ) + "px";
-
+  textarea.style.height = "auto";
+  textarea.style.height = Math.min(textarea.scrollHeight, 150) + "px";
 }
 
-$("messageInput").addEventListener(
-  "input",
-  resizeTextarea
-);
+$("messageInput").addEventListener("input", resizeTextarea);
 
-$("messageInput").addEventListener(
-  "keydown",
-  event => {
+$("messageInput").addEventListener("keydown", event => {
 
-    if(
-      event.key === "Enter" &&
-      !event.shiftKey &&
-      window.innerWidth > 600
-    ){
-
-      event.preventDefault();
-
-      sendMessage();
-
-    }
-
+  if(
+    event.key === "Enter" &&
+    !event.shiftKey &&
+    window.innerWidth > 900
+  ){
+    event.preventDefault();
+    sendMessage();
   }
-);
+});
 
 
 /* =========================
@@ -1621,19 +1029,13 @@ $("messageInput").addEventListener(
 ========================= */
 
 function toggleSidebar(){
-
   $("sidebar").classList.toggle("open");
-
+  $("overlay").classList.toggle("show");
 }
 
 function closeSidebar(){
-
-  if(window.innerWidth <= 720){
-
-    $("sidebar").classList.remove("open");
-
-  }
-
+  $("sidebar").classList.remove("open");
+  $("overlay").classList.remove("show");
 }
 
 
@@ -1643,27 +1045,13 @@ function closeSidebar(){
 
 async function logout(){
 
-  if(
-    !confirm(
-      "هل تريد تسجيل الخروج؟"
-    )
-  )
-    return;
+  if(!confirm("هل تريد تسجيل الخروج؟")) return;
 
   try{
-
-    await api(
-      "/api/logout",
-      {
-        method:"POST"
-      }
-    );
-
+    await api("/api/logout", { method:"POST" }, 8000);
   }catch(_){}
 
-  location.href =
-    "/login.html";
-
+  location.href = "/login.html";
 }
 
 
@@ -1671,26 +1059,13 @@ async function logout(){
    START
 ========================= */
 
-/*
-  مهم جداً:
-
-  سابقاً كنا ننتظر /api/me قبل فتح
-  الواجهة، وهذا كان سبب التعليق.
-
-  الآن الواجهة تفتح فوراً.
-*/
-
 function startApp(){
 
+  /* الواجهة تفتح فوراً */
   newChat();
 
-  /*
-    نحاول تحميل المستخدم بالخلفية.
-    حتى لو فشل الطلب، الموقع لا يتوقف.
-  */
-
+  /* تحميل المستخدم في الخلفية بدون تعليق */
   loadUser();
-
 }
 
 startApp();
